@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 public class Luna {
     public static void main(String[] args) {
+        String line = "   ____________________________________________________________\n";
         String banner =
                 "____________________________________________________________\n" +
                 "   Hello! I'm Luna.\n" +
@@ -11,38 +12,53 @@ public class Luna {
                 "____________________________________________________________\n";
         System.out.println(banner);
         Scanner scanner = new Scanner(System.in);
-        List<String> list = new ArrayList<>();
+        List<String> tasks = new ArrayList<>();
+        List<Boolean> isDone = new ArrayList<>();
 
         System.out.println(
                 "Available Commands:\n" +
                         "<any text>: adds a new item to your task list\n" +
                         "list: displays all currently saved items with index numbers\n" +
+                        "mark <index>: Marks the task at the specified index number as completed ([X]).\n" +
                         "bye: Exits the program\n"
         );
+
         String exit =
-                "   ____________________________________________________________\n" +
+                line +
                 "       Bye. Hope to see you again soon!\n" +
-                "   ____________________________________________________________";
+                line;
 
         while (true) {
             System.out.print("> ");
             String input = scanner.nextLine().trim();
             String response =
-                    "   ____________________________________________________________\n" +
+                    line +
                     "       added: " + input + "\n" +
-                    "   ____________________________________________________________";
+                    line;
             if (input.equalsIgnoreCase("bye")) {
                 System.out.println(exit);
                 break;
             } else if (input.equalsIgnoreCase("list")) {
-                System.out.println("   ____________________________________________________________");
-                for (int i = 0; i < list.size(); i++) {
-                    System.out.println("      " + (i + 1) + ". " + list.get(i));
+                System.out.print(line);
+                System.out.print("      Here are the tasks in your list\n");
+                for (int i = 0; i < tasks.size(); i++) {
+                    String status = isDone.get(i) ? "[X]" : "[ ]";
+                    System.out.println("      " + (i + 1) + ". " + status + " " + tasks.get(i));
                 }
-                System.out.println("   ____________________________________________________________\n");
+                System.out.println(line);
+            } else if (input.startsWith("mark ")) {
+                int index = Integer.parseInt(input.substring(5).trim()) - 1;
+                if (index >= 0 && index < tasks.size()) {
+                    isDone.set(index, true);
+                    System.out.print(line);
+                    System.out.print("      Nice! I've marked this as done:\n");
+                    System.out.println("      [X] " + tasks.get(index));
+                    System.out.print(line);
+                }
             } else if (!input.isEmpty()) {
-                list.add(input);
-                System.out.println(response);
+                    tasks.add(input);
+                    isDone.add(false);
+                    System.out.println(response);
             }
         }
         scanner.close();
