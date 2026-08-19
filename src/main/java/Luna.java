@@ -12,8 +12,7 @@ public class Luna {
                 "____________________________________________________________\n";
         System.out.println(banner);
         Scanner scanner = new Scanner(System.in);
-        List<String> tasks = new ArrayList<>();
-        List<Boolean> isDone = new ArrayList<>();
+        List<Task> tasks = new ArrayList<>();
 
         System.out.println(
                 "Available Commands:\n" +
@@ -43,31 +42,32 @@ public class Luna {
                 System.out.print(line);
                 System.out.print("      Here are the tasks in your list\n");
                 for (int i = 0; i < tasks.size(); i++) {
-                    String status = isDone.get(i) ? "[X]" : "[ ]";
-                    System.out.println("      " + (i + 1) + ". " + status + " " + tasks.get(i));
+                    System.out.println("      " + (i + 1) + ". " + tasks.get(i));
                 }
                 System.out.println(line);
             } else if (input.startsWith("mark ")) {
                 int index = Integer.parseInt(input.substring(5).trim()) - 1;
                 if (index >= 0 && index < tasks.size()) {
-                    isDone.set(index, true);
+                    Task task = tasks.get(index);
+                    task.markAsDone();
                     System.out.print(line);
                     System.out.print("      Nice! I've marked this as done:\n");
-                    System.out.println("      [X] " + tasks.get(index));
+                    System.out.println("      " + task);
                     System.out.print(line);
                 }
             } else if (input.startsWith("unmark ")) {
                 int index = Integer.parseInt(input.substring(7).trim()) - 1;
                 if (index >= 0 && index < tasks.size()) {
-                    isDone.set(index, false);
+                    Task task = tasks.get(index);
+                    task.markAsNotDone();
                     System.out.print(line);
                     System.out.print("      OK, I've marked this task as not done yet:\n");
-                    System.out.println("      [ ] " + tasks.get(index));
+                    System.out.println("      " + task);
                     System.out.print(line);
                 }
             } else if (!input.isEmpty()) {
-                    tasks.add(input);
-                    isDone.add(false);
+                    Task task = new Task(input);
+                    tasks.add(task);
                     System.out.println(response);
             }
         }
