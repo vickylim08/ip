@@ -20,6 +20,7 @@ public class Luna {
                         "<any text>: adds a new item to your task list\n" +
                         "list: displays all currently saved items with index numbers\n" +
                         "mark <index>: Marks the task at the specified index number as completed ([X]).\n" +
+                        "unmark <index>: Marks the task at the specified index number as not done ([ ]).\n" +
                         "bye: Exits the program\n"
         );
 
@@ -53,6 +54,15 @@ public class Luna {
                     System.out.print(line);
                     System.out.print("      Nice! I've marked this as done:\n");
                     System.out.println("      [X] " + tasks.get(index));
+                    System.out.print(line);
+                }
+            } else if (input.startsWith("unmark ")) {
+                int index = Integer.parseInt(input.substring(7).trim()) - 1;
+                if (index >= 0 && index < tasks.size()) {
+                    isDone.set(index, false);
+                    System.out.print(line);
+                    System.out.print("      OK, I've marked this task as not done yet:\n");
+                    System.out.println("      [ ] " + tasks.get(index));
                     System.out.print(line);
                 }
             } else if (!input.isEmpty()) {
