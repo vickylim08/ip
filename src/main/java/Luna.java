@@ -3,8 +3,9 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Luna {
+    private static final String line = "   ____________________________________________________________\n";
+
     public static void main(String[] args) {
-        String line = "   ____________________________________________________________\n";
         String banner =
                 "____________________________________________________________\n" +
                 "   Hello! I'm Luna.\n" +
@@ -33,69 +34,70 @@ public class Luna {
         while (true) {
             System.out.print("> ");
             String input = scanner.nextLine().trim();
-            String response =
-                    line +
-                    "       added: " + input + "\n" +
-                    line;
             if (input.equalsIgnoreCase("bye")) {
                 System.out.println(exit);
                 break;
-            } else if (input.equalsIgnoreCase("list")) {
-                System.out.print(line);
-                System.out.print("      Here are the tasks in your list\n");
-                for (int i = 0; i < tasks.size(); i++) {
-                    System.out.println("      " + (i + 1) + ". " + tasks.get(i));
-                }
-                System.out.println(line);
-            } else if (input.startsWith("mark ")) {
-                int index = Integer.parseInt(input.substring(5).trim()) - 1;
-                if (index >= 0 && index < tasks.size()) {
-                    Task task = tasks.get(index);
-                    task.markAsDone();
-                    System.out.print(line);
-                    System.out.print("      Nice! I've marked this as done:\n");
-                    System.out.println("      " + task);
-                    System.out.print(line);
-                }
-            } else if (input.startsWith("unmark ")) {
-                int index = Integer.parseInt(input.substring(7).trim()) - 1;
-                if (index >= 0 && index < tasks.size()) {
-                    Task task = tasks.get(index);
-                    task.markAsNotDone();
-                    System.out.print(line);
-                    System.out.print("      OK, I've marked this task as not done yet:\n");
-                    System.out.println("      " + task);
-                    System.out.print(line);
-                }
-            } else if (input.startsWith("todo ")) {
-                String description = input.substring(5).trim();
-                Task task = new Todo(description);
-                tasks.add(task);
-                System.out.print(line);
-                System.out.print("      Got it. I've added this task:\n");
-                System.out.println("          " + task);
-                System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
-                System.out.println(line);
-            } else if (input.startsWith("deadline ")) {
-                String[] parts = input.substring(9).split(" /by ", 2);
-                Task task = new Deadline(parts[0], parts[1]);
-                tasks.add(task);
-                System.out.print(line);
-                System.out.print("      Got it. I've added this task:\n");
-                System.out.println("          " + task);
-                System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
-                System.out.println(line);
-            } else if (input.startsWith("event ")) {
-                String[] parts = input.substring(6).split(" /from | /to ");
-                Task task = new Event(parts[0], parts[1], parts[2]);
-                tasks.add(task);
-                System.out.print(line);
-                System.out.print("      Got it. I've added this task:\n");
-                System.out.println("          " + task);
-                System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
-                System.out.println(line);
             }
+            processCommand(input, tasks);
         }
         scanner.close();
+    }
+
+    private static void processCommand(String input, List<Task> tasks) {
+        if (input.equalsIgnoreCase("list")) {
+            System.out.print(line);
+            System.out.print("      Here are the tasks in your list\n");
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println("      " + (i + 1) + ". " + tasks.get(i));
+            }
+            System.out.println(line);
+        } else if (input.startsWith("mark ")) {
+            int index = Integer.parseInt(input.substring(5).trim()) - 1;
+            if (index >= 0 && index < tasks.size()) {
+                Task task = tasks.get(index);
+                task.markAsDone();
+                System.out.print(line);
+                System.out.print("      Nice! I've marked this as done:\n");
+                System.out.println("      " + task);
+                System.out.print(line);
+            }
+        } else if (input.startsWith("unmark ")) {
+            int index = Integer.parseInt(input.substring(7).trim()) - 1;
+            if (index >= 0 && index < tasks.size()) {
+                Task task = tasks.get(index);
+                task.markAsNotDone();
+                System.out.print(line);
+                System.out.print("      OK, I've marked this task as not done yet:\n");
+                System.out.println("      " + task);
+                System.out.print(line);
+            }
+        } else if (input.startsWith("todo ")) {
+            String description = input.substring(5).trim();
+            Task task = new Todo(description);
+            tasks.add(task);
+            System.out.print(line);
+            System.out.print("      Got it. I've added this task:\n");
+            System.out.println("          " + task);
+            System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
+            System.out.println(line);
+        } else if (input.startsWith("deadline ")) {
+            String[] parts = input.substring(9).split(" /by ", 2);
+            Task task = new Deadline(parts[0], parts[1]);
+            tasks.add(task);
+            System.out.print(line);
+            System.out.print("      Got it. I've added this task:\n");
+            System.out.println("          " + task);
+            System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
+            System.out.println(line);
+        } else if (input.startsWith("event ")) {
+            String[] parts = input.substring(6).split(" /from | /to ");
+            Task task = new Event(parts[0], parts[1], parts[2]);
+            tasks.add(task);
+            System.out.print(line);
+            System.out.print("      Got it. I've added this task:\n");
+            System.out.println("          " + task);
+            System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
+            System.out.println(line);
+        }
     }
 }
