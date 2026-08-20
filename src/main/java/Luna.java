@@ -22,6 +22,7 @@ public class Luna {
                         "> list: displays all currently saved items with index numbers\n" +
                         "> mark <index>: Marks the task at the specified index number as completed ([X]).\n" +
                         "> unmark <index>: Marks the task at the specified index number as not done ([ ]).\n" +
+                        "> delete <index>: Removes the task at the specified index number from the list." +
                         "> bye: Exits the program\n"
         );
 
@@ -122,6 +123,17 @@ public class Luna {
             tasks.add(task);
             System.out.print(line);
             System.out.print("      Got it. I've added this task:\n");
+            System.out.println("          " + task);
+            System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
+            System.out.println(line);
+        } else if (input.equalsIgnoreCase("delete")) {
+            throw new LunaException("Please provide a task number to delete.");
+        } else if (input.startsWith("delete ")) {
+            int index = Integer.parseInt(input.substring(7).trim()) - 1;
+            Task task = tasks.get(index);
+            tasks.remove(task);
+            System.out.print(line);
+            System.out.print("      Noted. I've removed this task:\n");
             System.out.println("          " + task);
             System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
             System.out.println(line);
