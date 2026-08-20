@@ -16,11 +16,13 @@ public class Luna {
 
         System.out.println(
                 "Available Commands:\n" +
-                        "<any text>: adds a new item to your task list\n" +
-                        "list: displays all currently saved items with index numbers\n" +
-                        "mark <index>: Marks the task at the specified index number as completed ([X]).\n" +
-                        "unmark <index>: Marks the task at the specified index number as not done ([ ]).\n" +
-                        "bye: Exits the program\n"
+                        "> todo <desc>: Adds a simple task with no date/time attached\n" +
+                        "> deadline <desc> /by <date/time>: Adds a task that must be done before a specific time\n" +
+                        "> event <desc> /from <start> /to <end>: Adds a task that spans across a specific time\n" +
+                        "> list: displays all currently saved items with index numbers\n" +
+                        "> mark <index>: Marks the task at the specified index number as completed ([X]).\n" +
+                        "> unmark <index>: Marks the task at the specified index number as not done ([ ]).\n" +
+                        "> bye: Exits the program\n"
         );
 
         String exit =
@@ -65,10 +67,33 @@ public class Luna {
                     System.out.println("      " + task);
                     System.out.print(line);
                 }
-            } else if (!input.isEmpty()) {
-                    Task task = new Task(input);
-                    tasks.add(task);
-                    System.out.println(response);
+            } else if (input.startsWith("todo ")) {
+                String description = input.substring(5).trim();
+                Task task = new Todo(description);
+                tasks.add(task);
+                System.out.print(line);
+                System.out.print("      Got it. I've added this task:\n");
+                System.out.println("          " + task);
+                System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
+                System.out.println(line);
+            } else if (input.startsWith("deadline ")) {
+                String[] parts = input.substring(9).split(" /by ", 2);
+                Task task = new Deadline(parts[0], parts[1]);
+                tasks.add(task);
+                System.out.print(line);
+                System.out.print("      Got it. I've added this task:\n");
+                System.out.println("          " + task);
+                System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
+                System.out.println(line);
+            } else if (input.startsWith("event ")) {
+                String[] parts = input.substring(6).split(" /from | /to ");
+                Task task = new Event(parts[0], parts[1], parts[2]);
+                tasks.add(task);
+                System.out.print(line);
+                System.out.print("      Got it. I've added this task:\n");
+                System.out.println("          " + task);
+                System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
+                System.out.println(line);
             }
         }
         scanner.close();
