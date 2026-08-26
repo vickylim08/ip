@@ -1,4 +1,8 @@
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -7,6 +11,8 @@ import java.util.Scanner;
  * Runs Luna, a simple command-line task manager chatbot.
  */
 public class Luna {
+    private static final DateTimeFormatter EVENT_INPUT_FORMAT =
+            DateTimeFormatter.ofPattern("uuuu-MM-dd HHmm");
     private static final String DIVIDER_LINE = "   _________________________________________________________________\n";
     private static final String WELCOME_BANNER = DIVIDER_LINE
             + "   Hello! I'm Luna.\n"
@@ -147,14 +153,25 @@ public class Luna {
                     throw new LunaException("Please provide the description and the deadline.");
                 }
 
-                Task task = new Deadline(parts[0].trim(), parts[1].trim());
-                tasks.add(task);
-                saveTasks(storage, tasks);
-                System.out.print(DIVIDER_LINE);
-                System.out.print("      Got it. I've added this task:\n");
-                System.out.println("          " + task);
-                System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
-                System.out.println(DIVIDER_LINE);
+                String description = parts[0].trim();
+                String dateText = parts[1].trim();
+
+                try {
+                    LocalDate date = LocalDate.parse(dateText);
+                    Deadline deadline = new Deadline(description, date);
+
+                    tasks.add(deadline);
+                    saveTasks(storage, tasks);
+
+                    System.out.print(DIVIDER_LINE);
+                    System.out.print("      Got it. I've added this task:\n");
+                    System.out.println("          " + deadline);
+                    System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
+                    System.out.println(DIVIDER_LINE);
+                } catch (DateTimeParseException e) {
+                    throw new LunaException(
+                            "Please use the date format yyyy-MM-dd.");
+                }
             }
             break;
         case EVENT:
@@ -165,14 +182,31 @@ public class Luna {
                 if (parts.length < 3) {
                     throw new LunaException("Please provide the description, start, and end time.");
                 }
-                Task task = new Event(parts[0].trim(), parts[1].trim(), parts[2].trim());
-                tasks.add(task);
-                saveTasks(storage, tasks);
-                System.out.print(DIVIDER_LINE);
-                System.out.print("      Got it. I've added this task:\n");
-                System.out.println("          " + task);
-                System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
-                System.out.println(DIVIDER_LINE);
+
+                try {
+                    String description = parts[0].trim();
+
+                    LocalDateTime from = LocalDateTime.parse(
+                            parts[1].trim(), EVENT_INPUT_FORMAT);
+
+                    LocalDateTime to = LocalDateTime.parse(
+                            parts[2].trim(), EVENT_INPUT_FORMAT);
+
+                    Event event = new Event(description, from, to);
+
+                    tasks.add(event);
+                    saveTasks(storage, tasks);
+
+                    System.out.print(DIVIDER_LINE);
+                    System.out.print("      Got it. I've added this task:\n");
+                    System.out.println("          " + event);
+                    System.out.println("      Now you have "
+                            + tasks.size() + " tasks in the list.");
+                    System.out.println(DIVIDER_LINE);
+                } catch (DateTimeParseException e) {
+                    throw new LunaException(
+                            "Please use the format yyyy-MM-dd HHmm.");
+                }
             }
             break;
         case DELETE:

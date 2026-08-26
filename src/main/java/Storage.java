@@ -1,6 +1,9 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,21 +74,30 @@ public class Storage {
         String taskType = parts[0];
         String description = parts[2];
 
-        switch (taskType) {
-        case "T":
-            return new Todo(description);
-        case "D":
-            if (parts.length != 4) {
-                throw new LunaException("Saved deadline task is corrupted.");
+        try {
+            switch (taskType) {
+                case "T":
+                    return new Todo(description);
+                case "D":
+                    if (parts.length != 4) {
+                        throw new LunaException("Saved deadline task is corrupted.");
+                    }
+
+                    LocalDate deadlineDate = LocalDate.parse(parts[3]);
+                    return new Deadline(description, deadlineDate);
+                case "E":
+                    if (parts.length != 5) {
+                        throw new LunaException("Saved event task is corrupted.");
+                    }
+
+                    LocalDateTime from = LocalDateTime.parse(parts[3]);
+                    LocalDateTime to = LocalDateTime.parse(parts[4]);
+                    return new Event(description, from, to);
+                default:
+                    throw new LunaException("Saved task type is invalid.");
             }
-            return new Deadline(description, parts[3]);
-        case "E":
-            if (parts.length != 5) {
-                throw new LunaException("Saved event task is corrupted.");
-            }
-            return new Event(description, parts[3], parts[4]);
-        default:
-            throw new LunaException("Saved task type is invalid.");
+        } catch (DateTimeParseException e) {
+            throw new LunaException("Saved date or time is invalid.");
         }
     }
 }

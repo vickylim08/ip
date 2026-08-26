@@ -1,8 +1,14 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 /**
  * Represents a task that must be completed by a deadline.
  */
 public class Deadline extends Task {
-    private final String byDateTime;
+    private final LocalDate byDateTime;
+    private static final DateTimeFormatter OUTPUT_FORMAT =
+            DateTimeFormatter.ofPattern("dd MMM uuuu", Locale.ENGLISH);
 
     /**
      * Creates a deadline task with the given description and deadline.
@@ -10,7 +16,7 @@ public class Deadline extends Task {
      * @param description Description of the deadline task.
      * @param byDateTime Deadline of the task.
      */
-    public Deadline(String description, String byDateTime) {
+    public Deadline(String description, LocalDate byDateTime) {
         super(description);
         this.byDateTime = byDateTime;
     }
@@ -20,7 +26,7 @@ public class Deadline extends Task {
      *
      * @return Deadline text.
      */
-    public String getByDateTime() {
+    public LocalDate getByDateTime() {
         return byDateTime;
     }
 
@@ -31,6 +37,8 @@ public class Deadline extends Task {
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + byDateTime + ")";
+        return "[D]" + getStatusIcon() + " "
+                + getDescription()
+                + " (by: " + byDateTime.format(OUTPUT_FORMAT) + ")";
     }
 }
