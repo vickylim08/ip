@@ -1,9 +1,17 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 /**
  * Represents a task that takes place within a time range.
  */
 public class Event extends Task {
-    private final String fromDateTime;
-    private final String toDateTime;
+    private LocalDateTime fromDateTime;
+    private LocalDateTime toDateTime;
+    private static final DateTimeFormatter OUTPUT_FORMAT =
+            DateTimeFormatter.ofPattern(
+                    "dd MMM uuuu, h:mm a",
+                    Locale.ENGLISH);
 
     /**
      * Creates an event task with the given description and time range.
@@ -12,7 +20,7 @@ public class Event extends Task {
      * @param fromDateTime Start time of the event.
      * @param toDateTime End time of the event.
      */
-    public Event(String description, String fromDateTime, String toDateTime) {
+    public Event(String description, LocalDateTime fromDateTime, LocalDateTime toDateTime) {
         super(description);
         this.fromDateTime = fromDateTime;
         this.toDateTime = toDateTime;
@@ -23,7 +31,7 @@ public class Event extends Task {
      *
      * @return Start time text.
      */
-    public String getFromDateTime() {
+    public LocalDateTime getFromDateTime() {
         return fromDateTime;
     }
 
@@ -32,7 +40,7 @@ public class Event extends Task {
      *
      * @return End time text.
      */
-    public String getToDateTime() {
+    public LocalDateTime getToDateTime() {
         return toDateTime;
     }
 
@@ -44,6 +52,9 @@ public class Event extends Task {
 
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (from: " + fromDateTime + " to: " + toDateTime + " )";
+        return "[E][" + getStatusIcon() + "] "
+                + getDescription()
+                + " (from: " + fromDateTime.format(OUTPUT_FORMAT)
+                + " to: " + toDateTime.format(OUTPUT_FORMAT) + ")";
     }
 }
