@@ -1,7 +1,6 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 
 /**
  * Represents the command that adds an event task.
@@ -22,7 +21,7 @@ public class EventCommand extends Command {
     }
 
     @Override
-    public void execute(List<Task> tasks, Ui ui, Storage storage) throws LunaException {
+    public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
         if (input.equalsIgnoreCase("event")) {
             throw new LunaException("Please provide the description, start, and end time.");
         }

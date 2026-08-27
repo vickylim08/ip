@@ -1,4 +1,3 @@
-import java.util.List;
 import java.io.IOException;
 
 /**
@@ -13,7 +12,7 @@ public abstract class Command {
      * @param storage Storage used to persist task changes.
      * @throws LunaException If the command cannot be executed.
      */
-    public abstract void execute(List<Task> tasks, Ui ui, Storage storage) throws LunaException;
+    public abstract void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException;
 
     /**
      * Returns whether this command should terminate the application.
@@ -31,7 +30,7 @@ public abstract class Command {
      * @param tasks Tasks to save.
      * @throws LunaException If saving fails.
      */
-    protected void saveTasks(Storage storage, List<Task> tasks) throws LunaException {
+    protected void saveTasks(Storage storage, TaskList tasks) throws LunaException {
         try {
             storage.saveTasks(tasks);
         } catch (IOException e) {

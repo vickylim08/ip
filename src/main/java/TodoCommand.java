@@ -1,5 +1,3 @@
-import java.util.List;
-
 /**
  * Represents the command that adds a todo task.
  */
@@ -16,7 +14,7 @@ public class TodoCommand extends Command {
     }
 
     @Override
-    public void execute(List<Task> tasks, Ui ui, Storage storage) throws LunaException {
+    public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
         if (input.equalsIgnoreCase("todo")) {
             throw new LunaException("Please provide the description for the todo task.");
         }

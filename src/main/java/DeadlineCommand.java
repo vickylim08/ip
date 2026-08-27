@@ -1,6 +1,5 @@
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 
 /**
  * Represents the command that adds a deadline task.
@@ -18,7 +17,7 @@ public class DeadlineCommand extends Command {
     }
 
     @Override
-    public void execute(List<Task> tasks, Ui ui, Storage storage) throws LunaException {
+    public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
         if (input.equalsIgnoreCase("deadline")) {
             throw new LunaException("Please provide the description and the deadline.");
         }

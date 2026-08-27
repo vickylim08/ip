@@ -1,5 +1,3 @@
-import java.util.List;
-
 /**
  * Represents the command that marks a task as not done.
  */
@@ -16,14 +14,13 @@ public class UnmarkCommand extends Command {
     }
 
     @Override
-    public void execute(List<Task> tasks, Ui ui, Storage storage) throws LunaException {
+    public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
         if (input.equalsIgnoreCase("unmark")) {
             throw new LunaException("Please provide a task number to mark as done.");
         }
 
         int index = Integer.parseInt(input.substring(7).trim()) - 1;
-        Task task = tasks.get(index);
-        task.markAsNotDone();
+        Task task = tasks.unmark(index);
         saveTasks(storage, tasks);
         ui.showUnmarkSuccess(task);
     }

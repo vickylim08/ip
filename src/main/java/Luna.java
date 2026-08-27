@@ -1,21 +1,26 @@
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Runs Luna, a simple command-line task manager chatbot.
  */
 public class Luna {
-    /**
-     * Starts the Luna application.
-     *
-     * @param args Command-line arguments.
-     */
-    public static void main(String[] args) {
-        Ui ui = new Ui();
-        Storage storage = new Storage();
-        List<Task> tasks = loadTasks(storage, ui);
+    private final Ui ui;
+    private final Storage storage;
+    private final TaskList tasks;
 
+    /**
+     * Creates a Luna application with its UI, storage, and task list.
+     */
+    public Luna() {
+        this.ui = new Ui();
+        this.storage = new Storage();
+        this.tasks = loadTasks();
+    }
+
+    /**
+     * Runs the main command loop of the application.
+     */
+    public void run() {
         ui.showWelcome();
 
         while (true) {
@@ -41,12 +46,21 @@ public class Luna {
         ui.close();
     }
 
-    private static List<Task> loadTasks(Storage storage, Ui ui) {
+    /**
+     * Starts the Luna application.
+     *
+     * @param args Command-line arguments.
+     */
+    public static void main(String[] args) {
+        new Luna().run();
+    }
+
+    private TaskList loadTasks() {
         try {
-            return storage.loadTasks();
+            return new TaskList(storage.loadTasks());
         } catch (IOException | LunaException e) {
             ui.showLoadingError();
-            return new ArrayList<>();
+            return new TaskList();
         }
     }
 }

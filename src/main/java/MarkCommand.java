@@ -1,5 +1,3 @@
-import java.util.List;
-
 /**
  * Represents the command that marks a task as done.
  */
@@ -16,14 +14,13 @@ public class MarkCommand extends Command {
     }
 
     @Override
-    public void execute(List<Task> tasks, Ui ui, Storage storage) throws LunaException {
+    public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
         if (input.equalsIgnoreCase("mark")) {
             throw new LunaException("Please provide a task number to mark as done.");
         }
 
         int index = Integer.parseInt(input.substring(5).trim()) - 1;
-        Task task = tasks.get(index);
-        task.markAsDone();
+        Task task = tasks.mark(index);
         saveTasks(storage, tasks);
         ui.showMarkSuccess(task);
     }
