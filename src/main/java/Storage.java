@@ -43,11 +43,11 @@ public class Storage {
      * @param tasks Tasks to save.
      * @throws IOException If writing the file fails.
      */
-    public void saveTasks(List<Task> tasks) throws IOException {
+    public void saveTasks(TaskList tasks) throws IOException {
         Files.createDirectories(FILE_PATH.getParent());
         List<String> lines = new ArrayList<>();
 
-        for (Task task : tasks) {
+        for (Task task : tasks.asList()) {
             lines.add(task.toStorageString());
         }
 
