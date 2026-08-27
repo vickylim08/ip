@@ -1,3 +1,9 @@
+package luna.command;
+
+import luna.storage.Storage;
+import luna.task.TaskList;
+import luna.ui.Ui;
+
 /**
  * Represents the command that exits the application.
  */

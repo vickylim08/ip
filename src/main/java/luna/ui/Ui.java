@@ -1,4 +1,9 @@
+package luna.ui;
+
 import java.util.Scanner;
+
+import luna.task.Task;
+import luna.task.TaskList;
 
 /**
  * Handles all command-line interactions with the user.

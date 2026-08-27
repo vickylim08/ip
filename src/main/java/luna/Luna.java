@@ -1,4 +1,12 @@
+package luna;
+
 import java.io.IOException;
+
+import luna.command.Command;
+import luna.parser.Parser;
+import luna.storage.Storage;
+import luna.task.TaskList;
+import luna.ui.Ui;
 
 /**
  * Runs Luna, a simple command-line task manager chatbot.

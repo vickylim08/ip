@@ -1,3 +1,5 @@
+package luna.task;
+
 /**
  * Represents a todo task without date or time information.
  */

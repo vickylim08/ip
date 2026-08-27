@@ -1,6 +1,14 @@
+package luna.command;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
+import luna.LunaException;
+import luna.storage.Storage;
+import luna.task.Event;
+import luna.task.TaskList;
+import luna.ui.Ui;
 
 /**
  * Represents the command that adds an event task.

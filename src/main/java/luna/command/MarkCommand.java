@@ -1,3 +1,11 @@
+package luna.command;
+
+import luna.LunaException;
+import luna.storage.Storage;
+import luna.task.Task;
+import luna.task.TaskList;
+import luna.ui.Ui;
+
 /**
  * Represents the command that marks a task as done.
  */

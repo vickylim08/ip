@@ -1,5 +1,13 @@
+package luna.command;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+
+import luna.LunaException;
+import luna.storage.Storage;
+import luna.task.Deadline;
+import luna.task.TaskList;
+import luna.ui.Ui;
 
 /**
  * Represents the command that adds a deadline task.

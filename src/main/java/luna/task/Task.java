@@ -1,3 +1,5 @@
+package luna.task;
+
 /**
  * Represents a generic task tracked by Luna.
  */
