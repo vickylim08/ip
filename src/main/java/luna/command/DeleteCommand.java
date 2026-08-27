@@ -21,6 +21,14 @@ public class DeleteCommand extends Command {
         this.input = input;
     }
 
+    /**
+     * Deletes the task at the requested index, saves the list, and shows the result.
+     *
+     * @param tasks Current tasks in memory.
+     * @param ui User interface for showing results.
+     * @param storage Storage used to persist task changes.
+     * @throws LunaException If the input is incomplete or saving fails.
+     */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
         if (input.equalsIgnoreCase("delete")) {

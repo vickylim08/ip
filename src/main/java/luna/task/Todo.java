@@ -13,6 +13,11 @@ public class Todo extends Task {
         super(description);
     }
 
+    /**
+     * Returns the user-facing text representation of this todo task.
+     *
+     * @return Formatted todo text for display.
+     */
     @Override
     public String toString() {
         return "[T]" + super.toString();

@@ -24,6 +24,14 @@ public class DeadlineCommand extends Command {
         this.input = input;
     }
 
+    /**
+     * Parses the deadline details, adds the task, saves the list, and shows the result.
+     *
+     * @param tasks Current tasks in memory.
+     * @param ui User interface for showing results.
+     * @param storage Storage used to persist task changes.
+     * @throws LunaException If the input is incomplete, the date is invalid, or saving fails.
+     */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
         if (input.equalsIgnoreCase("deadline")) {

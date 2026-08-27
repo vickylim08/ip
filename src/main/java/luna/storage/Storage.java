@@ -63,6 +63,13 @@ public class Storage {
         Files.write(FILE_PATH, lines);
     }
 
+    /**
+     * Parses one saved task line into an in-memory task object.
+     *
+     * @param line One non-blank line from the save file.
+     * @return Parsed task represented by the line.
+     * @throws LunaException If the saved line has an invalid format or status value.
+     */
     private Task parseTask(String line) throws LunaException {
         String[] parts = line.split(" \\| ", -1);
         if (parts.length < 3) {
@@ -79,6 +86,13 @@ public class Storage {
         return task;
     }
 
+    /**
+     * Creates a task instance from the split save-file fields.
+     *
+     * @param parts Fields extracted from one saved task line.
+     * @return Task instance matching the saved task type.
+     * @throws LunaException If the task type, field count, or date values are invalid.
+     */
     private Task createTask(String[] parts) throws LunaException {
         String taskType = parts[0];
         String description = parts[2];
