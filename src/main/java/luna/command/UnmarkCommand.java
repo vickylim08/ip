@@ -32,7 +32,7 @@ public class UnmarkCommand extends Command {
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
         if (input.equalsIgnoreCase("unmark")) {
-            throw new LunaException("Please provide a task number to mark as done.");
+            throw new LunaException("Please provide a task number to mark as not done.");
         }
 
         int index = Integer.parseInt(input.substring(7).trim()) - 1;

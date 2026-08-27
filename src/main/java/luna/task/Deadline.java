@@ -8,7 +8,7 @@ import java.util.Locale;
  * Represents a task that must be completed by a deadline.
  */
 public class Deadline extends Task {
-    private final LocalDate byDateTime;
+    private final LocalDate byDate;
     private static final DateTimeFormatter OUTPUT_FORMAT =
             DateTimeFormatter.ofPattern("dd MMM uuuu", Locale.ENGLISH);
 
@@ -16,11 +16,11 @@ public class Deadline extends Task {
      * Creates a deadline task with the given description and deadline.
      *
      * @param description Description of the deadline task.
-     * @param byDateTime Deadline of the task.
+     * @param byDate Deadline of the task.
      */
-    public Deadline(String description, LocalDate byDateTime) {
+    public Deadline(String description, LocalDate byDate) {
         super(description);
-        this.byDateTime = byDateTime;
+        this.byDate = byDate;
     }
 
     /**
@@ -28,8 +28,8 @@ public class Deadline extends Task {
      *
      * @return Deadline text.
      */
-    public LocalDate getByDateTime() {
-        return byDateTime;
+    public LocalDate getByDate() {
+        return byDate;
     }
 
     /**
@@ -39,7 +39,7 @@ public class Deadline extends Task {
      */
     @Override
     public String toStorageString() {
-        return "D | " + getStorageStatus() + " | " + getDescription() + " | " + byDateTime;
+        return "D | " + getStorageStatus() + " | " + getDescription() + " | " + byDate;
     }
 
     /**
@@ -51,6 +51,6 @@ public class Deadline extends Task {
     public String toString() {
         return "[D]" + getStatusIcon() + " "
                 + getDescription()
-                + " (by: " + byDateTime.format(OUTPUT_FORMAT) + ")";
+                + " (by: " + byDate.format(OUTPUT_FORMAT) + ")";
     }
 }
