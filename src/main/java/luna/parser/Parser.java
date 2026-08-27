@@ -6,6 +6,7 @@ import luna.command.DeadlineCommand;
 import luna.command.DeleteCommand;
 import luna.command.EventCommand;
 import luna.command.ExitCommand;
+import luna.command.FindCommand;
 import luna.command.ListCommand;
 import luna.command.MarkCommand;
 import luna.command.TodoCommand;
@@ -42,6 +43,8 @@ public class Parser {
             return new EventCommand(input);
         case "delete":
             return new DeleteCommand(input);
+        case "find":
+            return new FindCommand(input);
         default:
             throw new LunaException("I don't know this command :(");
         }

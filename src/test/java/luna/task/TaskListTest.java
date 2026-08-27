@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -50,5 +51,37 @@ public class TaskListTest {
         TaskList taskList = new TaskList(List.of(new Todo("submit quiz")));
 
         assertThrows(IndexOutOfBoundsException.class, () -> taskList.mark(1));
+    }
+
+    @Test
+    public void findTasks_keywordMatchesMultipleTasks_returnsMatchingTasksInOrder() {
+        Todo firstMatch = new Todo("read book");
+        Todo nonMatch = new Todo("submit quiz");
+        Todo secondMatch = new Todo("return book");
+        TaskList taskList = new TaskList(List.of(firstMatch, nonMatch, secondMatch));
+
+        List<Task> matchingTasks = taskList.findTasks("book");
+
+        assertIterableEquals(List.of(firstMatch, secondMatch), matchingTasks);
+    }
+
+    @Test
+    public void findTasks_keywordUsesCaseInsensitiveMatching_returnsMatchingTasks() {
+        Todo match = new Todo("Read Book");
+        Todo nonMatch = new Todo("write summary");
+        TaskList taskList = new TaskList(List.of(match, nonMatch));
+
+        List<Task> matchingTasks = taskList.findTasks("book");
+
+        assertIterableEquals(List.of(match), matchingTasks);
+    }
+
+    @Test
+    public void findTasks_keywordMatchesNoTasks_returnsEmptyList() {
+        TaskList taskList = new TaskList(List.of(new Todo("read book"), new Todo("submit quiz")));
+
+        List<Task> matchingTasks = taskList.findTasks("meeting");
+
+        assertTrue(matchingTasks.isEmpty());
     }
 }

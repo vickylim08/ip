@@ -6,6 +6,7 @@ import luna.command.DeadlineCommand;
 import luna.command.DeleteCommand;
 import luna.command.EventCommand;
 import luna.command.ExitCommand;
+import luna.command.FindCommand;
 import luna.command.ListCommand;
 import luna.command.MarkCommand;
 import luna.command.TodoCommand;
@@ -73,6 +74,13 @@ public class ParserTest {
         Command command = Parser.parse("delete 1");
 
         assertInstanceOf(DeleteCommand.class, command);
+    }
+
+    @Test
+    public void parse_findCommand_returnsFindCommand() throws LunaException {
+        Command command = Parser.parse("find book");
+
+        assertInstanceOf(FindCommand.class, command);
     }
 
     @Test

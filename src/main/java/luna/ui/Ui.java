@@ -1,5 +1,6 @@
 package luna.ui;
 
+import java.util.List;
 import java.util.Scanner;
 
 import luna.task.Task;
@@ -17,8 +18,10 @@ public class Ui {
     private static final String AVAILABLE_COMMANDS = "Available Commands:\n"
             + "> todo <desc>: Adds a todo task with the given description\n"
             + "> deadline <desc> /by <yyyy-MM-dd>: Adds a deadline task with the given due date\n"
-            + "> event <desc> /from <start> /to <end>: Adds a task that spans across a specific time\n"
+            + "> event <desc> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>: "
+            + "Adds a task that spans across a specific time\n"
             + "> list: displays all currently saved items with index numbers\n"
+            + "> find <keyword>: Displays tasks whose descriptions contain the keyword\n"
             + "> mark <index>: Marks the task at the specified index number as completed ([X]).\n"
             + "> unmark <index>: Marks the task at the specified index number as not done ([ ]).\n"
             + "> delete <index>: Removes the task at the specified index number from the list.\n"
@@ -70,6 +73,20 @@ public class Ui {
         System.out.print("      Here are the tasks in your list\n");
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println("      " + (i + 1) + ". " + tasks.get(i));
+        }
+        System.out.println(DIVIDER_LINE);
+    }
+
+    /**
+     * Shows the tasks whose descriptions match a search keyword.
+     *
+     * @param matchingTasks Tasks that matched the search keyword.
+     */
+    public void showMatchingTasks(List<Task> matchingTasks) {
+        System.out.print(DIVIDER_LINE);
+        System.out.print("      Here are the matching tasks in your list:\n");
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            System.out.println("      " + (i + 1) + ". " + matchingTasks.get(i));
         }
         System.out.println(DIVIDER_LINE);
     }
