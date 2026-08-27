@@ -19,8 +19,8 @@ public class Luna {
             + "   What can I do for you?\n"
             + DIVIDER_LINE;
     private static final String AVAILABLE_COMMANDS = "Available Commands:\n"
-            + "> todo <desc>: Adds a simple task with no date/time attached\n"
-            + "> deadline <desc> /by <date/time>: Adds a task that must be done before a specific time\n"
+            + "> todo <desc>: Adds a todo task with the given description\n"
+            + "> deadline <desc> /by <yyyy-MM-dd>: Adds a deadline task with the given due date\n"
             + "> event <desc> /from <start> /to <end>: Adds a task that spans across a specific time\n"
             + "> list: displays all currently saved items with index numbers\n"
             + "> mark <index>: Marks the task at the specified index number as completed ([X]).\n"
