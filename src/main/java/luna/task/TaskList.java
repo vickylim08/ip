@@ -2,6 +2,7 @@ package luna.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Represents the in-memory list of tasks managed by Luna.
@@ -94,5 +95,25 @@ public class TaskList {
      */
     public List<Task> asList() {
         return new ArrayList<>(tasks);
+    }
+
+    /**
+     * Returns the tasks whose descriptions contain the given keyword.
+     *
+     * @param keyword Keyword to search for in task descriptions.
+     * @return Matching tasks in their original order.
+     */
+    public List<Task> findTasks(String keyword) {
+        List<Task> matchingTasks = new ArrayList<>();
+        String normalizedKeyword = keyword.toLowerCase(Locale.ENGLISH);
+
+        for (Task task : tasks) {
+            String normalizedDescription = task.getDescription().toLowerCase(Locale.ENGLISH);
+            if (normalizedDescription.contains(normalizedKeyword)) {
+                matchingTasks.add(task);
+            }
+        }
+
+        return matchingTasks;
     }
 }
