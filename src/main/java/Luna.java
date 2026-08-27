@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Runs Luna, a simple command-line task manager chatbot.
@@ -13,23 +12,6 @@ import java.util.Scanner;
 public class Luna {
     private static final DateTimeFormatter EVENT_INPUT_FORMAT =
             DateTimeFormatter.ofPattern("uuuu-MM-dd HHmm");
-    private static final String DIVIDER_LINE = "   _________________________________________________________________\n";
-    private static final String WELCOME_BANNER = DIVIDER_LINE
-            + "   Hello! I'm Luna.\n"
-            + "   What can I do for you?\n"
-            + DIVIDER_LINE;
-    private static final String AVAILABLE_COMMANDS = "Available Commands:\n"
-            + "> todo <desc>: Adds a todo task with the given description\n"
-            + "> deadline <desc> /by <yyyy-MM-dd>: Adds a deadline task with the given due date\n"
-            + "> event <desc> /from <start> /to <end>: Adds a task that spans across a specific time\n"
-            + "> list: displays all currently saved items with index numbers\n"
-            + "> mark <index>: Marks the task at the specified index number as completed ([X]).\n"
-            + "> unmark <index>: Marks the task at the specified index number as not done ([ ]).\n"
-            + "> delete <index>: Removes the task at the specified index number from the list.\n"
-            + "> bye: Exits the program\n";
-    private static final String EXIT_MESSAGE = DIVIDER_LINE
-            + "       Bye. Hope to see you again soon!\n"
-            + DIVIDER_LINE;
 
     /**
      * Starts the Luna application.
@@ -37,16 +19,14 @@ public class Luna {
      * @param args Command-line arguments.
      */
     public static void main(String[] args) {
-        System.out.println(WELCOME_BANNER);
-        Scanner scanner = new Scanner(System.in);
+        Ui ui = new Ui();
         Storage storage = new Storage();
-        List<Task> tasks = loadTasks(storage);
+        List<Task> tasks = loadTasks(storage, ui);
 
-        System.out.println(AVAILABLE_COMMANDS);
+        ui.showWelcome();
 
         while (true) {
-            System.out.print("> ");
-            String input = scanner.nextLine().trim();
+            String input = ui.readCommand();
 
             if (input.isEmpty()) {
                 continue;
@@ -54,26 +34,26 @@ public class Luna {
             try {
                 Command command = getCommand(input);
                 if (command == Command.BYE) {
-                    System.out.println(EXIT_MESSAGE);
+                    ui.showExit();
                     break;
                 }
-                processCommand(command, input, tasks, storage);
+                processCommand(command, input, tasks, storage, ui);
             } catch (LunaException e) {
-                printError(e.getMessage());
+                ui.showError(e.getMessage());
             } catch (NumberFormatException e) {
-                printError("Please provide a valid integer for task number.");
+                ui.showError("Please provide a valid integer for task number.");
             } catch (IndexOutOfBoundsException e) {
-                printError("That task number does not exist in your list.");
+                ui.showError("That task number does not exist in your list.");
             }
         }
-        scanner.close();
+        ui.close();
     }
 
-    private static List<Task> loadTasks(Storage storage) {
+    private static List<Task> loadTasks(Storage storage, Ui ui) {
         try {
             return storage.loadTasks();
         } catch (IOException | LunaException e) {
-            printError("I could not load your saved tasks. Starting with an empty list.");
+            ui.showLoadingError();
             return new ArrayList<>();
         }
     }
@@ -87,16 +67,11 @@ public class Luna {
         }
     }
 
-    private static void processCommand(Command command, String input, List<Task> tasks, Storage storage)
-            throws LunaException {
+    private static void processCommand(Command command, String input, List<Task> tasks,
+                                       Storage storage, Ui ui) throws LunaException {
         switch (command) {
         case LIST:
-            System.out.print(DIVIDER_LINE);
-            System.out.print("      Here are the tasks in your list\n");
-            for (int i = 0; i < tasks.size(); i++) {
-                System.out.println("      " + (i + 1) + ". " + tasks.get(i));
-            }
-            System.out.println(DIVIDER_LINE);
+            ui.showTaskList(tasks);
             break;
         case MARK:
             if (input.equalsIgnoreCase("mark")) {
@@ -106,10 +81,7 @@ public class Luna {
                 Task task = tasks.get(index); // throws IndexOutOfBoundsException if invalid
                 task.markAsDone();
                 saveTasks(storage, tasks);
-                System.out.print(DIVIDER_LINE);
-                System.out.print("      Nice! I've marked this as done:\n");
-                System.out.println("      " + task);
-                System.out.print(DIVIDER_LINE);
+                ui.showMarkSuccess(task);
             }
             break;
         case UNMARK:
@@ -120,10 +92,7 @@ public class Luna {
                 Task task = tasks.get(index);
                 task.markAsNotDone();
                 saveTasks(storage, tasks);
-                System.out.print(DIVIDER_LINE);
-                System.out.print("      OK, I've marked this task as not done yet:\n");
-                System.out.println("      " + task);
-                System.out.print(DIVIDER_LINE);
+                ui.showUnmarkSuccess(task);
             }
             break;
         case TODO:
@@ -137,11 +106,7 @@ public class Luna {
                 }
                 tasks.add(task);
                 saveTasks(storage, tasks);
-                System.out.print(DIVIDER_LINE);
-                System.out.print("      Got it. I've added this task:\n");
-                System.out.println("          " + task);
-                System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
-                System.out.println(DIVIDER_LINE);
+                ui.showAddSuccess(task, tasks.size());
             }
             break;
         case DEADLINE:
@@ -162,12 +127,7 @@ public class Luna {
 
                     tasks.add(deadline);
                     saveTasks(storage, tasks);
-
-                    System.out.print(DIVIDER_LINE);
-                    System.out.print("      Got it. I've added this task:\n");
-                    System.out.println("          " + deadline);
-                    System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
-                    System.out.println(DIVIDER_LINE);
+                    ui.showAddSuccess(deadline, tasks.size());
                 } catch (DateTimeParseException e) {
                     throw new LunaException(
                             "Please use the date format yyyy-MM-dd.");
@@ -196,13 +156,7 @@ public class Luna {
 
                     tasks.add(event);
                     saveTasks(storage, tasks);
-
-                    System.out.print(DIVIDER_LINE);
-                    System.out.print("      Got it. I've added this task:\n");
-                    System.out.println("          " + event);
-                    System.out.println("      Now you have "
-                            + tasks.size() + " tasks in the list.");
-                    System.out.println(DIVIDER_LINE);
+                    ui.showAddSuccess(event, tasks.size());
                 } catch (DateTimeParseException e) {
                     throw new LunaException(
                             "Please use the format yyyy-MM-dd HHmm.");
@@ -217,11 +171,7 @@ public class Luna {
                 Task task = tasks.get(index);
                 tasks.remove(task);
                 saveTasks(storage, tasks);
-                System.out.print(DIVIDER_LINE);
-                System.out.print("      Noted. I've removed this task:\n");
-                System.out.println("          " + task);
-                System.out.print("      Now you have " + tasks.size() + " tasks in the list.\n");
-                System.out.println(DIVIDER_LINE);
+                ui.showDeleteSuccess(task, tasks.size());
             }
             break;
         case BYE:
@@ -235,11 +185,5 @@ public class Luna {
         } catch (IOException e) {
             throw new LunaException("I could not save your tasks to disk.");
         }
-    }
-
-    private static void printError(String message) {
-        System.out.print(DIVIDER_LINE);
-        System.out.println("        Oh no! " + message);
-        System.out.print(DIVIDER_LINE);
     }
 }
