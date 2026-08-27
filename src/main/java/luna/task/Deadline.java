@@ -32,11 +32,21 @@ public class Deadline extends Task {
         return byDateTime;
     }
 
+    /**
+     * Returns the save-file representation of this deadline task.
+     *
+     * @return Serialized representation used in storage.
+     */
     @Override
     public String toStorageString() {
         return "D | " + getStorageStatus() + " | " + getDescription() + " | " + byDateTime;
     }
 
+    /**
+     * Returns the user-facing text representation of this deadline task.
+     *
+     * @return Formatted deadline text for display.
+     */
     @Override
     public String toString() {
         return "[D]" + getStatusIcon() + " "
