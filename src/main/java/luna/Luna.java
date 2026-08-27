@@ -63,6 +63,11 @@ public class Luna {
         new Luna().run();
     }
 
+    /**
+     * Loads tasks from storage and falls back to an empty list if loading fails.
+     *
+     * @return Task list initialized from saved data when available.
+     */
     private TaskList loadTasks() {
         try {
             return new TaskList(storage.loadTasks());

@@ -21,6 +21,14 @@ public class MarkCommand extends Command {
         this.input = input;
     }
 
+    /**
+     * Marks the task at the requested index as done, saves the list, and shows the result.
+     *
+     * @param tasks Current tasks in memory.
+     * @param ui User interface for showing results.
+     * @param storage Storage used to persist task changes.
+     * @throws LunaException If the input is incomplete or saving fails.
+     */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
         if (input.equalsIgnoreCase("mark")) {

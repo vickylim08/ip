@@ -46,12 +46,22 @@ public class Event extends Task {
         return toDateTime;
     }
 
+    /**
+     * Returns the save-file representation of this event task.
+     *
+     * @return Serialized representation used in storage.
+     */
     @Override
     public String toStorageString() {
         return "E | " + getStorageStatus() + " | " + getDescription()
                 + " | " + fromDateTime + " | " + toDateTime;
     }
 
+    /**
+     * Returns the user-facing text representation of this event task.
+     *
+     * @return Formatted event text for display.
+     */
     @Override
     public String toString() {
         return "[E]" + getStatusIcon() + " "
