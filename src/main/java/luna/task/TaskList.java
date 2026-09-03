@@ -1,6 +1,7 @@
 package luna.task;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,6 +25,15 @@ public class TaskList {
      */
     public TaskList(List<Task> tasks) {
         this.tasks = new ArrayList<>(tasks);
+    }
+
+    /**
+     * Creates a task list from zero or more tasks.
+     *
+     * @param tasks Tasks to copy into this task list.
+     */
+    public TaskList(Task... tasks) {
+        this.tasks = new ArrayList<>(Arrays.asList(tasks));
     }
 
     /**
