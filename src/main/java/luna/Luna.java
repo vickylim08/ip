@@ -15,14 +15,26 @@ public class Luna {
     private final Ui ui;
     private final Storage storage;
     private final TaskList tasks;
+    private boolean isExitRequested;
 
     /**
      * Creates a Luna application with its UI, storage, and task list.
      */
     public Luna() {
-        this.ui = new Ui();
-        this.storage = new Storage();
+        this(new Ui(), new Storage());
+    }
+
+    /**
+     * Creates a Luna application with the given collaborators.
+     *
+     * @param ui User interface used to format and display responses.
+     * @param storage Storage used to load and save tasks.
+     */
+    public Luna(Ui ui, Storage storage) {
+        this.ui = ui;
+        this.storage = storage;
         this.tasks = loadTasks();
+        this.isExitRequested = false;
     }
 
     /**
@@ -31,27 +43,69 @@ public class Luna {
     public void run() {
         ui.showWelcome();
 
-        while (true) {
+        while (!isExitRequested) {
             String input = ui.readCommand();
 
             if (input.isEmpty()) {
                 continue;
             }
-            try {
-                Command command = Parser.parse(input);
-                command.execute(tasks, ui, storage);
-                if (command.isExit()) {
-                    break;
-                }
-            } catch (LunaException e) {
-                ui.showError(e.getMessage());
-            } catch (NumberFormatException e) {
-                ui.showError("Please provide a valid integer for task number.");
-            } catch (IndexOutOfBoundsException e) {
-                ui.showError("That task number does not exist in your list.");
-            }
+            getResponse(input);
         }
         ui.close();
+    }
+
+    /**
+     * Returns the welcome message shown when the application starts.
+     *
+     * @return Welcome message with the command summary.
+     */
+    public String getWelcomeMessage() {
+        return ui.getWelcomeMessage();
+    }
+
+    /**
+     * Processes one user command and returns Luna's response text.
+     *
+     * @param input Raw user command.
+     * @return Response generated for the command.
+     */
+    public String getResponse(String input) {
+        String trimmedInput = input == null ? "" : input.trim();
+        if (trimmedInput.isEmpty()) {
+            return "";
+        }
+
+        try {
+            Command command = Parser.parse(trimmedInput);
+            command.execute(tasks, ui, storage);
+            isExitRequested = command.isExit();
+        } catch (LunaException e) {
+            ui.showError(e.getMessage());
+        } catch (NumberFormatException e) {
+            ui.showError("Please provide a valid integer for task number.");
+        } catch (IndexOutOfBoundsException e) {
+            ui.showError("That task number does not exist in your list.");
+        }
+
+        return ui.consumeLatestResponse();
+    }
+
+    /**
+     * Returns whether Luna has already received an exit command.
+     *
+     * @return {@code true} if the application should stop accepting commands.
+     */
+    public boolean isExitRequested() {
+        return isExitRequested;
+    }
+
+    /**
+     * Returns any pending startup message that has not been consumed yet.
+     *
+     * @return Pending response text, or an empty string if none exists.
+     */
+    public String consumePendingResponse() {
+        return ui.consumeLatestResponse();
     }
 
     /**
