@@ -27,26 +27,26 @@ public class Parser {
         String commandWord = input.split(" ", 2)[0].toLowerCase();
 
         switch (commandWord) {
-        case "list":
-            return new ListCommand();
-        case "bye":
-            return new ExitCommand();
-        case "mark":
-            return new MarkCommand(input);
-        case "unmark":
-            return new UnmarkCommand(input);
-        case "todo":
-            return new TodoCommand(input);
-        case "deadline":
-            return new DeadlineCommand(input);
-        case "event":
-            return new EventCommand(input);
-        case "delete":
-            return new DeleteCommand(input);
-        case "find":
-            return new FindCommand(input);
-        default:
-            throw new LunaException("I don't know this command :(");
+            case "list":
+                return new ListCommand();
+            case "bye":
+                return new ExitCommand();
+            case "mark":
+                return new MarkCommand(input);
+            case "unmark":
+                return new UnmarkCommand(input);
+            case "todo":
+                return new TodoCommand(input);
+            case "deadline":
+                return new DeadlineCommand(input);
+            case "event":
+                return new EventCommand(input);
+            case "delete":
+                return new DeleteCommand(input);
+            case "find":
+                return new FindCommand(input);
+            default:
+                throw new LunaException("I don't know this command :(");
         }
     }
 }

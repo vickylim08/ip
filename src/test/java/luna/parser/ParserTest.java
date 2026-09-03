@@ -1,5 +1,10 @@
 package luna.parser;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
+
 import luna.LunaException;
 import luna.command.Command;
 import luna.command.DeadlineCommand;
@@ -11,10 +16,6 @@ import luna.command.ListCommand;
 import luna.command.MarkCommand;
 import luna.command.TodoCommand;
 import luna.command.UnmarkCommand;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Tests for {@link Parser#parse(String)}.
