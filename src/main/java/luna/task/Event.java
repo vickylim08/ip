@@ -8,12 +8,12 @@ import java.util.Locale;
  * Represents a task that takes place within a time range.
  */
 public class Event extends Task {
-    private LocalDateTime fromDateTime;
-    private LocalDateTime toDateTime;
     private static final DateTimeFormatter OUTPUT_FORMAT =
             DateTimeFormatter.ofPattern(
                     "dd MMM uuuu, h:mm a",
                     Locale.ENGLISH);
+    private LocalDateTime fromDateTime;
+    private LocalDateTime toDateTime;
 
     /**
      * Creates an event task with the given description and time range.

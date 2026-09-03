@@ -8,9 +8,9 @@ import java.util.Locale;
  * Represents a task that must be completed by a deadline.
  */
 public class Deadline extends Task {
-    private final LocalDate byDate;
     private static final DateTimeFormatter OUTPUT_FORMAT =
             DateTimeFormatter.ofPattern("dd MMM uuuu", Locale.ENGLISH);
+    private final LocalDate byDate;
 
     /**
      * Creates a deadline task with the given description and deadline.
