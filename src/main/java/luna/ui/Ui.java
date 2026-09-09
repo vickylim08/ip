@@ -95,12 +95,7 @@ public class Ui {
      * @param tasks Tasks to display.
      */
     public void showTaskList(TaskList tasks) {
-        StringBuilder message = new StringBuilder();
-        message.append("Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            message.append('\n').append(i + 1).append(". ").append(tasks.get(i));
-        }
-        showMessage(formatResponse(message.toString()));
+        showTasks("Here are the tasks in your list:", tasks.asList());
     }
 
     /**
@@ -109,10 +104,19 @@ public class Ui {
      * @param matchingTasks Tasks that matched the search keyword.
      */
     public void showMatchingTasks(List<Task> matchingTasks) {
-        StringBuilder message = new StringBuilder();
-        message.append("Here are the matching tasks in your list:");
-        for (int i = 0; i < matchingTasks.size(); i++) {
-            message.append('\n').append(i + 1).append(". ").append(matchingTasks.get(i));
+        showTasks("Here are the matching tasks in your list:", matchingTasks);
+    }
+
+    /**
+     * Shows a collection of tasks under the given heading.
+     *
+     * @param heading Heading shown before the task entries.
+     * @param tasks Tasks to display.
+     */
+    private void showTasks(String heading, List<Task> tasks) {
+        StringBuilder message = new StringBuilder(heading);
+        for (int i = 0; i < tasks.size(); i++) {
+            message.append('\n').append(i + 1).append(". ").append(tasks.get(i));
         }
         showMessage(formatResponse(message.toString()));
     }
