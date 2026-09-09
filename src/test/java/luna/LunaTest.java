@@ -2,6 +2,7 @@ package luna;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class LunaTest {
 
         assertTrue(welcomeMessage.contains("Hello! I'm Luna."));
         assertTrue(welcomeMessage.contains("Available commands:"));
+        assertTrue(welcomeMessage.contains("> event <desc> /from <yyyy-MM-dd HHmm> "
+                + "/to <yyyy-MM-dd HHmm>: Adds a task that spans across a specific time"));
         assertFalse(welcomeMessage.contains("___"));
     }
 
@@ -69,6 +72,11 @@ public class LunaTest {
 
         assertEquals("", response);
         assertFalse(luna.isExitRequested());
+    }
+
+    @Test
+    public void constructor_storageReturnsNull_assertsStorageContract() {
+        assertThrows(AssertionError.class, () -> new Luna(new Ui(false), new NullStorage()));
     }
 
     /**
@@ -115,6 +123,16 @@ public class LunaTest {
          */
         public List<String> getSavedTasks() {
             return new ArrayList<>(savedTasks);
+        }
+    }
+
+    /**
+     * Test double that violates the storage loading contract.
+     */
+    private static class NullStorage extends Storage {
+        @Override
+        public List<Task> loadTasks() {
+            return null;
         }
     }
 }
