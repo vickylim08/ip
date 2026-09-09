@@ -23,6 +23,7 @@ public class Main extends Application {
     private static final double INPUT_HEIGHT = 44.0;
     private static final double SEND_BUTTON_WIDTH = 80.0;
     private static final double EDGE_PADDING = 8.0;
+    private static final double SCROLL_PANE_BOTTOM_RESERVE = 24.0;
 
     private final Luna luna;
     private ScrollPane scrollPane;
@@ -80,7 +81,8 @@ public class Main extends Application {
 
         mainLayout.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-        scrollPane.setPrefSize(WINDOW_WIDTH - (EDGE_PADDING * 2), WINDOW_HEIGHT - INPUT_HEIGHT - 24.0);
+        scrollPane.setPrefSize(WINDOW_WIDTH - (EDGE_PADDING * 2),
+                WINDOW_HEIGHT - INPUT_HEIGHT - SCROLL_PANE_BOTTOM_RESERVE);
         scrollPane.setFitToWidth(true);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
