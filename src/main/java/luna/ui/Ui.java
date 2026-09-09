@@ -15,7 +15,8 @@ public class Ui {
     private static final String AVAILABLE_COMMANDS = "Available commands:\n"
             + "> todo <desc>: Adds a todo task with the given description\n"
             + "> deadline <desc> /by <yyyy-MM-dd>: Adds a deadline task with the given due date\n"
-            + "> event <desc> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>: Adds a task that spans across a specific time\n"
+            + "> event <desc> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>: "
+            + "Adds a task that spans across a specific time\n"
             + "> list: Displays all currently saved items with index numbers\n"
             + "> find <keyword>: Displays tasks whose descriptions contain the keyword\n"
             + "> mark <index>: Marks the task at the specified index number as completed ([X]).\n"
@@ -86,7 +87,7 @@ public class Ui {
      * Shows the exit message.
      */
     public void showExit() {
-        showMessage(formatResponse("Bye. Hope to see you again soon!"));
+        showMessage(formatResponse(EXIT_TEXT));
     }
 
     /**
@@ -95,12 +96,7 @@ public class Ui {
      * @param tasks Tasks to display.
      */
     public void showTaskList(TaskList tasks) {
-        StringBuilder message = new StringBuilder();
-        message.append("Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            message.append('\n').append(i + 1).append(". ").append(tasks.get(i));
-        }
-        showMessage(formatResponse(message.toString()));
+        showTasks("Here are the tasks in your list:", tasks.asList());
     }
 
     /**
@@ -109,10 +105,19 @@ public class Ui {
      * @param matchingTasks Tasks that matched the search keyword.
      */
     public void showMatchingTasks(List<Task> matchingTasks) {
-        StringBuilder message = new StringBuilder();
-        message.append("Here are the matching tasks in your list:");
-        for (int i = 0; i < matchingTasks.size(); i++) {
-            message.append('\n').append(i + 1).append(". ").append(matchingTasks.get(i));
+        showTasks("Here are the matching tasks in your list:", matchingTasks);
+    }
+
+    /**
+     * Shows a collection of tasks under the given heading.
+     *
+     * @param heading Heading shown before the task entries.
+     * @param tasks Tasks to display.
+     */
+    private void showTasks(String heading, List<Task> tasks) {
+        StringBuilder message = new StringBuilder(heading);
+        for (int i = 0; i < tasks.size(); i++) {
+            message.append('\n').append(i + 1).append(". ").append(tasks.get(i));
         }
         showMessage(formatResponse(message.toString()));
     }
@@ -142,9 +147,7 @@ public class Ui {
      * @param taskCount Current number of tasks in the list.
      */
     public void showAddSuccess(Task task, int taskCount) {
-        showMessage(formatResponse("Got it. I've added this task:\n"
-                + task + '\n'
-                + "Now you have " + taskCount + " tasks in the list."));
+        showTaskCountChange("Got it. I've added this task", task, taskCount);
     }
 
     /**
@@ -154,9 +157,7 @@ public class Ui {
      * @param taskCount Current number of tasks remaining in the list.
      */
     public void showDeleteSuccess(Task task, int taskCount) {
-        showMessage(formatResponse("Noted. I've removed this task:\n"
-                + task + '\n'
-                + "Now you have " + taskCount + " tasks in the list."));
+        showTaskCountChange("Noted. I've removed this task", task, taskCount);
     }
 
     /**
@@ -173,6 +174,19 @@ public class Ui {
      */
     public void showLoadingError() {
         showError("I could not load your saved tasks. Starting with an empty list.");
+    }
+
+    /**
+     * Shows a confirmation for a task-count change.
+     *
+     * @param actionMessage Message describing the task action.
+     * @param task Task affected by the action.
+     * @param taskCount Current number of tasks in the list.
+     */
+    private void showTaskCountChange(String actionMessage, Task task, int taskCount) {
+        showMessage(formatResponse(actionMessage + ":\n"
+                + task + '\n'
+                + "Now you have " + taskCount + " tasks in the list."));
     }
 
     /**
