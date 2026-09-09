@@ -11,7 +11,13 @@ import luna.task.TaskList;
  */
 public class Ui {
     private static final String DIVIDER_LINE = "   _________________________________________________________________";
-    private static final String WELCOME_TEXT = "Hello! I'm Luna.\nWhat can I do for you?";
+    private static final String BANNER_TEXT = " _\n"
+            + "| |    _   _ _ __   __ _\n"
+            + "| |   | | | | '_ \\ / _` |\n"
+            + "| |___| |_| | | | | (_| |\n"
+            + "|_____|\\__,_|_| |_|\\__,_|";
+    private static final String WELCOME_TEXT = BANNER_TEXT
+            + "\n\nHi, I'm Luna.\nWhat can I do for you?";
     private static final String AVAILABLE_COMMANDS = "Available commands:\n"
             + "> todo <desc>: Adds a todo task with the given description\n"
             + "> deadline <desc> /by <yyyy-MM-dd>: Adds a deadline task with the given due date\n"

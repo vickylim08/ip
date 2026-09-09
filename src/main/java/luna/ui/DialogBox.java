@@ -24,6 +24,9 @@ public class DialogBox extends HBox {
             -fx-padding: 10 14 10 14;
             -fx-font-size: 13px;
             """;
+    private static final String WELCOME_BUBBLE_STYLE = LUNA_BUBBLE_STYLE + """
+            -fx-font-family: "Monospaced";
+            """;
     private static final String USER_TAG_STYLE = """
             -fx-background-color: #2563eb;
             -fx-background-radius: 999;
@@ -85,6 +88,18 @@ public class DialogBox extends HBox {
      */
     public static DialogBox getLunaDialog(String message) {
         DialogBox dialogBox = new DialogBox(message, "Luna", LUNA_BUBBLE_STYLE, LUNA_TAG_STYLE);
+        dialogBox.flip();
+        return dialogBox;
+    }
+
+    /**
+     * Returns a monospaced dialog box for Luna's ASCII-art welcome message.
+     *
+     * @param message Welcome message containing the ASCII-art banner.
+     * @return Monospaced dialog box aligned for Luna.
+     */
+    public static DialogBox getWelcomeDialog(String message) {
+        DialogBox dialogBox = new DialogBox(message, "Luna", WELCOME_BUBBLE_STYLE, LUNA_TAG_STYLE);
         dialogBox.flip();
         return dialogBox;
     }

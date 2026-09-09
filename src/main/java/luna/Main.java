@@ -124,7 +124,7 @@ public class Main extends Application {
             dialogContainer.getChildren().add(DialogBox.getLunaDialog(startupNotice));
         }
 
-        dialogContainer.getChildren().add(DialogBox.getLunaDialog(luna.getWelcomeMessage()));
+        dialogContainer.getChildren().add(DialogBox.getWelcomeDialog(luna.getWelcomeMessage()));
     }
 
     /**
