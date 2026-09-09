@@ -34,4 +34,28 @@ public class UiTest {
         assertEquals("Here are the matching tasks in your list:\n1. [T][ ] read book",
                 ui.consumeLatestResponse());
     }
+
+    @Test
+    public void showAddSuccess_taskProvided_formatsTaskCountConfirmation() {
+        Ui ui = new Ui(false);
+        Task task = new Todo("read book");
+
+        ui.showAddSuccess(task, 1);
+
+        assertEquals("Got it. I've added this task:\n"
+                + "[T][ ] read book\n"
+                + "Now you have 1 tasks in the list.", ui.consumeLatestResponse());
+    }
+
+    @Test
+    public void showDeleteSuccess_taskProvided_formatsTaskCountConfirmation() {
+        Ui ui = new Ui(false);
+        Task task = new Todo("read book");
+
+        ui.showDeleteSuccess(task, 0);
+
+        assertEquals("Noted. I've removed this task:\n"
+                + "[T][ ] read book\n"
+                + "Now you have 0 tasks in the list.", ui.consumeLatestResponse());
+    }
 }

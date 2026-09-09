@@ -147,9 +147,7 @@ public class Ui {
      * @param taskCount Current number of tasks in the list.
      */
     public void showAddSuccess(Task task, int taskCount) {
-        showMessage(formatResponse("Got it. I've added this task:\n"
-                + task + '\n'
-                + "Now you have " + taskCount + " tasks in the list."));
+        showTaskCountChange("Got it. I've added this task", task, taskCount);
     }
 
     /**
@@ -159,9 +157,7 @@ public class Ui {
      * @param taskCount Current number of tasks remaining in the list.
      */
     public void showDeleteSuccess(Task task, int taskCount) {
-        showMessage(formatResponse("Noted. I've removed this task:\n"
-                + task + '\n'
-                + "Now you have " + taskCount + " tasks in the list."));
+        showTaskCountChange("Noted. I've removed this task", task, taskCount);
     }
 
     /**
@@ -178,6 +174,19 @@ public class Ui {
      */
     public void showLoadingError() {
         showError("I could not load your saved tasks. Starting with an empty list.");
+    }
+
+    /**
+     * Shows a confirmation for a task-count change.
+     *
+     * @param actionMessage Message describing the task action.
+     * @param task Task affected by the action.
+     * @param taskCount Current number of tasks in the list.
+     */
+    private void showTaskCountChange(String actionMessage, Task task, int taskCount) {
+        showMessage(formatResponse(actionMessage + ":\n"
+                + task + '\n'
+                + "Now you have " + taskCount + " tasks in the list."));
     }
 
     /**

@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import luna.LunaException;
@@ -20,7 +21,25 @@ import luna.task.Todo;
  * Handles loading tasks from disk and saving tasks back to disk.
  */
 public class Storage {
-    private static final Path FILE_PATH = Path.of("./data/luna.txt");
+    private static final Path DEFAULT_FILE_PATH = Path.of("./data/luna.txt");
+    private static final String FIELD_SEPARATOR = " | ";
+    private final Path filePath;
+
+    /**
+     * Creates storage backed by Luna's default data file.
+     */
+    public Storage() {
+        this(DEFAULT_FILE_PATH);
+    }
+
+    /**
+     * Creates storage backed by the given data file.
+     *
+     * @param filePath File used to save and load tasks.
+     */
+    Storage(Path filePath) {
+        this.filePath = filePath;
+    }
 
     /**
      * Loads all saved tasks from the data file.
@@ -30,11 +49,11 @@ public class Storage {
      * @throws LunaException If the saved file format is invalid.
      */
     public List<Task> loadTasks() throws IOException, LunaException {
-        if (!Files.exists(FILE_PATH)) {
+        if (!Files.exists(filePath)) {
             return new ArrayList<>();
         }
 
-        List<String> lines = Files.readAllLines(FILE_PATH);
+        List<String> lines = Files.readAllLines(filePath);
         List<Task> tasks = new ArrayList<>();
 
         for (String line : lines) {
@@ -53,14 +72,14 @@ public class Storage {
      * @throws IOException If writing the file fails.
      */
     public void saveTasks(TaskList tasks) throws IOException {
-        Files.createDirectories(FILE_PATH.getParent());
+        Files.createDirectories(filePath.getParent());
         List<String> lines = new ArrayList<>();
 
         for (Task task : tasks.asList()) {
             lines.add(task.toStorageString());
         }
 
-        Files.write(FILE_PATH, lines);
+        Files.write(filePath, lines);
     }
 
     /**
@@ -95,32 +114,43 @@ public class Storage {
      */
     private Task createTask(String[] parts) throws LunaException {
         String taskType = parts[0];
-        String description = parts[2];
 
         try {
             switch (taskType) {
                 case "T":
-                    return new Todo(description);
+                    return new Todo(joinDescription(parts, 0));
                 case "D":
-                    if (parts.length != 4) {
+                    if (parts.length < 4) {
                         throw new LunaException("Saved deadline task is corrupted.");
                     }
 
-                    LocalDate deadlineDate = LocalDate.parse(parts[3]);
-                    return new Deadline(description, deadlineDate);
+                    LocalDate deadlineDate = LocalDate.parse(parts[parts.length - 1]);
+                    return new Deadline(joinDescription(parts, 1), deadlineDate);
                 case "E":
-                    if (parts.length != 5) {
+                    if (parts.length < 5) {
                         throw new LunaException("Saved event task is corrupted.");
                     }
 
-                    LocalDateTime from = LocalDateTime.parse(parts[3]);
-                    LocalDateTime to = LocalDateTime.parse(parts[4]);
-                    return new Event(description, from, to);
+                    LocalDateTime from = LocalDateTime.parse(parts[parts.length - 2]);
+                    LocalDateTime to = LocalDateTime.parse(parts[parts.length - 1]);
+                    return new Event(joinDescription(parts, 2), from, to);
                 default:
                     throw new LunaException("Saved task type is invalid.");
             }
         } catch (DateTimeParseException e) {
             throw new LunaException("Saved date or time is invalid.");
         }
+    }
+
+    /**
+     * Reconstructs a description while preserving separator text inside it.
+     *
+     * @param parts Fields extracted from a saved task line.
+     * @param trailingFieldCount Number of fields after the description.
+     * @return Reconstructed task description.
+     */
+    private String joinDescription(String[] parts, int trailingFieldCount) {
+        int descriptionEnd = parts.length - trailingFieldCount;
+        return String.join(FIELD_SEPARATOR, Arrays.copyOfRange(parts, 2, descriptionEnd));
     }
 }
