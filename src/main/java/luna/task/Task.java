@@ -13,6 +13,7 @@ public class Task {
      * @param description Description of the task.
      */
     public Task(String description) {
+        assert description != null : "A task must have a non-null description";
         this.description = description;
         this.isDone = false;
     }
@@ -31,6 +32,7 @@ public class Task {
      */
     public void markAsDone() {
         this.isDone = true;
+        assert isDone : "A task marked as done must report that it is done";
     }
 
     /**
@@ -38,6 +40,7 @@ public class Task {
      */
     public void markAsNotDone() {
         this.isDone = false;
+        assert !isDone : "A task marked as not done must report that it is not done";
     }
 
     /**

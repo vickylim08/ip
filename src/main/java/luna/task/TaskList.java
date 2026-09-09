@@ -24,6 +24,9 @@ public class TaskList {
      * @param tasks Existing tasks to copy into this task list.
      */
     public TaskList(List<Task> tasks) {
+        assert tasks != null : "A task list must be created from a non-null collection";
+        assert tasks.stream().allMatch(task -> task != null)
+                : "A task list must not contain null tasks";
         this.tasks = new ArrayList<>(tasks);
     }
 
@@ -33,6 +36,9 @@ public class TaskList {
      * @param tasks Tasks to copy into this task list.
      */
     public TaskList(Task... tasks) {
+        assert tasks != null : "A task list must be created from a non-null task array";
+        assert Arrays.stream(tasks).allMatch(task -> task != null)
+                : "A task list must not contain null tasks";
         this.tasks = new ArrayList<>(Arrays.asList(tasks));
     }
 
@@ -42,6 +48,7 @@ public class TaskList {
      * @param task Task to add.
      */
     public void add(Task task) {
+        assert task != null : "A task list must not contain null tasks";
         tasks.add(task);
     }
 
