@@ -54,11 +54,9 @@ public class Storage {
      */
     public void saveTasks(TaskList tasks) throws IOException {
         Files.createDirectories(FILE_PATH.getParent());
-        List<String> lines = new ArrayList<>();
-
-        for (Task task : tasks.asList()) {
-            lines.add(task.toStorageString());
-        }
+        List<String> lines = tasks.asList().stream()
+                .map(Task::toStorageString)
+                .toList();
 
         Files.write(FILE_PATH, lines);
     }
