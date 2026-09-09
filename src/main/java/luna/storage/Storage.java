@@ -73,11 +73,9 @@ public class Storage {
      */
     public void saveTasks(TaskList tasks) throws IOException {
         Files.createDirectories(filePath.getParent());
-        List<String> lines = new ArrayList<>();
-
-        for (Task task : tasks.asList()) {
-            lines.add(task.toStorageString());
-        }
+        List<String> lines = tasks.asList().stream()
+                .map(Task::toStorageString)
+                .toList();
 
         assert lines.size() == tasks.size() : "Every task must produce exactly one storage line";
         Files.write(filePath, lines);
