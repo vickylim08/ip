@@ -79,6 +79,7 @@ public class Storage {
             lines.add(task.toStorageString());
         }
 
+        assert lines.size() == tasks.size() : "Every task must produce exactly one storage line";
         Files.write(filePath, lines);
     }
 
@@ -90,12 +91,15 @@ public class Storage {
      * @throws LunaException If the saved line has an invalid format or status value.
      */
     private Task parseTask(String line) throws LunaException {
+        assert line != null && !line.isBlank() : "parseTask expects a non-blank storage line";
         String[] parts = line.split(" \\| ", -1);
         if (parts.length < 3) {
             throw new LunaException("Saved data file is corrupted.");
         }
 
+        assert parts.length >= 3 : "createTask expects the validated base storage fields";
         Task task = createTask(parts);
+        assert task != null : "A valid storage record must create a task";
         if ("1".equals(parts[1])) {
             task.markAsDone();
         } else if (!"0".equals(parts[1])) {
@@ -113,6 +117,8 @@ public class Storage {
      * @throws LunaException If the task type, field count, or date values are invalid.
      */
     private Task createTask(String[] parts) throws LunaException {
+        assert parts != null && parts.length >= 3
+                : "createTask expects a non-null record with base fields";
         String taskType = parts[0];
 
         try {

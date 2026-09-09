@@ -1,10 +1,12 @@
 package luna;
 
 import java.io.IOException;
+import java.util.List;
 
 import luna.command.Command;
 import luna.parser.Parser;
 import luna.storage.Storage;
+import luna.task.Task;
 import luna.task.TaskList;
 import luna.ui.Ui;
 
@@ -124,7 +126,9 @@ public class Luna {
      */
     private TaskList loadTasks() {
         try {
-            return new TaskList(storage.loadTasks());
+            List<Task> loadedTasks = storage.loadTasks();
+            assert loadedTasks != null : "Storage must return a non-null task collection";
+            return new TaskList(loadedTasks);
         } catch (IOException | LunaException e) {
             ui.showLoadingError();
             return new TaskList();
