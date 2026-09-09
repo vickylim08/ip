@@ -26,6 +26,8 @@ public class LunaTest {
 
         assertTrue(welcomeMessage.contains("Hello! I'm Luna."));
         assertTrue(welcomeMessage.contains("Available commands:"));
+        assertTrue(welcomeMessage.contains("> event <desc> /from <yyyy-MM-dd HHmm> "
+                + "/to <yyyy-MM-dd HHmm>: Adds a task that spans across a specific time"));
         assertFalse(welcomeMessage.contains("___"));
     }
 
