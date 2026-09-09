@@ -36,6 +36,25 @@ public class UiTest {
     }
 
     @Test
+    public void showArchivedTasks_tasksProvided_formatsNumberedArchivedTasks() {
+        Ui ui = new Ui(false);
+        List<Task> archivedTasks = List.of(new Todo("read book"));
+
+        ui.showArchivedTasks(archivedTasks);
+
+        assertEquals("Here are your archived tasks:\n1. [T][ ] read book", ui.consumeLatestResponse());
+    }
+
+    @Test
+    public void showArchivedTasks_emptyList_formatsEmptyArchiveMessage() {
+        Ui ui = new Ui(false);
+
+        ui.showArchivedTasks(List.of());
+
+        assertEquals("There are no archived tasks.", ui.consumeLatestResponse());
+    }
+
+    @Test
     public void showAddSuccess_taskProvided_formatsTaskCountConfirmation() {
         Ui ui = new Ui(false);
         Task task = new Todo("read book");
@@ -57,5 +76,24 @@ public class UiTest {
         assertEquals("Noted. I've removed this task:\n"
                 + "[T][ ] read book\n"
                 + "Now you have 0 tasks in the list.", ui.consumeLatestResponse());
+    }
+
+    @Test
+    public void showArchiveSuccess_oneTask_formatsArchiveConfirmation() {
+        Ui ui = new Ui(false);
+
+        ui.showArchiveSuccess(1, 1);
+
+        assertEquals("Archived 1 task to data/archive.txt.\n"
+                + "Now you have 1 task in the list.", ui.consumeLatestResponse());
+    }
+
+    @Test
+    public void showNoTasksToArchive_formatsNoOpMessage() {
+        Ui ui = new Ui(false);
+
+        ui.showNoTasksToArchive();
+
+        assertEquals("There are no tasks to archive.", ui.consumeLatestResponse());
     }
 }

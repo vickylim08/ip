@@ -58,4 +58,56 @@ public class StorageTest {
 
         assertThrows(LunaException.class, storage::loadTasks);
     }
+
+    @Test
+    public void archiveAndLoad_multipleBatches_appendsTasksInOrder()
+            throws IOException, LunaException {
+        Path activeFile = temporaryDirectory.resolve("luna.txt");
+        Path archiveFile = temporaryDirectory.resolve("archive.txt");
+        Storage storage = new Storage(activeFile, archiveFile);
+        Todo firstTask = new Todo("read | book");
+        Deadline secondTask = new Deadline("submit report", LocalDate.of(2026, 9, 12));
+        Event thirdTask = new Event(
+                "team meeting",
+                LocalDateTime.of(2026, 9, 12, 9, 0),
+                LocalDateTime.of(2026, 9, 12, 10, 0));
+        secondTask.markAsDone();
+
+        storage.archiveTasks(List.of(firstTask));
+        storage.archiveTasks(List.of(secondTask, thirdTask, firstTask));
+
+        List<Task> archivedTasks = storage.loadArchivedTasks();
+        Event archivedEvent = (Event) archivedTasks.get(2);
+        assertEquals(List.of("read | book", "submit report", "team meeting", "read | book"),
+                archivedTasks.stream().map(Task::getDescription).toList());
+        assertTrue(archivedTasks.get(1).isDone());
+        assertEquals(LocalDate.of(2026, 9, 12), ((Deadline) archivedTasks.get(1)).getByDate());
+        assertEquals(LocalDateTime.of(2026, 9, 12, 9, 0), archivedEvent.getFromDateTime());
+        assertEquals(List.of(
+                "T | 0 | read | book",
+                "D | 1 | submit report | 2026-09-12",
+                "E | 0 | team meeting | 2026-09-12T09:00 | 2026-09-12T10:00",
+                "T | 0 | read | book"), Files.readAllLines(archiveFile));
+    }
+
+    @Test
+    public void loadArchivedTasks_missingArchive_returnsEmptyList()
+            throws IOException, LunaException {
+        Storage storage = new Storage(
+                temporaryDirectory.resolve("luna.txt"),
+                temporaryDirectory.resolve("archive.txt"));
+
+        List<Task> archivedTasks = storage.loadArchivedTasks();
+
+        assertTrue(archivedTasks.isEmpty());
+    }
+
+    @Test
+    public void loadArchivedTasks_corruptedArchive_throwsLunaException() throws IOException {
+        Path archiveFile = temporaryDirectory.resolve("archive.txt");
+        Files.writeString(archiveFile, "invalid archive record");
+        Storage storage = new Storage(temporaryDirectory.resolve("luna.txt"), archiveFile);
+
+        assertThrows(LunaException.class, storage::loadArchivedTasks);
+    }
 }

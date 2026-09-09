@@ -73,6 +73,13 @@ public class TaskList {
     }
 
     /**
+     * Removes every task from the list.
+     */
+    public void clear() {
+        tasks.clear();
+    }
+
+    /**
      * Marks the task at the given zero-based index as done.
      *
      * @param index Zero-based position of the task.

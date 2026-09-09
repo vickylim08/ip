@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import luna.storage.Storage;
 import luna.task.Task;
 import luna.task.TaskList;
+import luna.task.Todo;
 import luna.ui.Ui;
 
 /**
@@ -75,6 +76,69 @@ public class LunaTest {
     }
 
     @Test
+    public void getResponse_archiveIndex_archivesSelectedTaskAndSavesRemainingTasks() {
+        InMemoryStorage storage = new InMemoryStorage(List.of(
+                new Todo("read book"),
+                new Todo("submit quiz")));
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("archive 1");
+
+        assertEquals("Archived 1 task to data/archive.txt.\n"
+                + "Now you have 1 task in the list.", response);
+        assertEquals(List.of("T | 0 | read book"), storage.getArchivedTasks());
+        assertEquals(List.of("T | 0 | submit quiz"), storage.getSavedTasks());
+    }
+
+    @Test
+    public void getResponse_archiveAll_archivesEveryTaskAndClearsActiveList() {
+        InMemoryStorage storage = new InMemoryStorage(List.of(
+                new Todo("read book"),
+                new Todo("submit quiz")));
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("  ARCHIVE   ALL  ");
+
+        assertEquals("Archived 2 tasks to data/archive.txt.\n"
+                + "Now you have 0 tasks in the list.", response);
+        assertEquals(List.of("T | 0 | read book", "T | 0 | submit quiz"), storage.getArchivedTasks());
+        assertTrue(storage.getSavedTasks().isEmpty());
+    }
+
+    @Test
+    public void getResponse_archiveAllWithEmptyList_returnsNoOpMessage() {
+        InMemoryStorage storage = new InMemoryStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("archive all");
+
+        assertEquals("There are no tasks to archive.", response);
+        assertTrue(storage.getArchivedTasks().isEmpty());
+    }
+
+    @Test
+    public void getResponse_listArchived_displaysPersistedArchivedTasks() {
+        InMemoryStorage storage = new InMemoryStorage();
+        storage.archiveTasks(List.of(new Todo("read book")));
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("list archived");
+
+        assertEquals("Here are your archived tasks:\n1. [T][ ] read book", response);
+    }
+
+    @Test
+    public void getResponse_archiveWithInvalidArgument_returnsUsageErrorWithoutArchiving() {
+        InMemoryStorage storage = new InMemoryStorage(List.of(new Todo("read book")));
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("archive book");
+
+        assertEquals("Oh no! Please use archive <index> or archive all.", response);
+        assertTrue(storage.getArchivedTasks().isEmpty());
+    }
+
+    @Test
     public void constructor_storageReturnsNull_assertsStorageContract() {
         assertThrows(AssertionError.class, () -> new Luna(new Ui(false), new NullStorage()));
     }
@@ -84,6 +148,7 @@ public class LunaTest {
      */
     private static class InMemoryStorage extends Storage {
         private final List<Task> loadedTasks;
+        private final List<Task> archivedTasks;
         private final List<String> savedTasks;
 
         /**
@@ -100,6 +165,7 @@ public class LunaTest {
          */
         InMemoryStorage(List<Task> loadedTasks) {
             this.loadedTasks = new ArrayList<>(loadedTasks);
+            this.archivedTasks = new ArrayList<>();
             this.savedTasks = new ArrayList<>();
         }
 
@@ -116,6 +182,16 @@ public class LunaTest {
             }
         }
 
+        @Override
+        public void archiveTasks(List<Task> tasks) {
+            archivedTasks.addAll(tasks);
+        }
+
+        @Override
+        public List<Task> loadArchivedTasks() {
+            return new ArrayList<>(archivedTasks);
+        }
+
         /**
          * Returns the serialized tasks most recently saved.
          *
@@ -123,6 +199,17 @@ public class LunaTest {
          */
         public List<String> getSavedTasks() {
             return new ArrayList<>(savedTasks);
+        }
+
+        /**
+         * Returns the serialized tasks currently kept in the test archive.
+         *
+         * @return Archived task lines.
+         */
+        public List<String> getArchivedTasks() {
+            return archivedTasks.stream()
+                    .map(Task::toStorageString)
+                    .toList();
         }
     }
 

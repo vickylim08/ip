@@ -1,12 +1,14 @@
 package luna.parser;
 
 import luna.LunaException;
+import luna.command.ArchiveCommand;
 import luna.command.Command;
 import luna.command.DeadlineCommand;
 import luna.command.DeleteCommand;
 import luna.command.EventCommand;
 import luna.command.ExitCommand;
 import luna.command.FindCommand;
+import luna.command.ListArchivedCommand;
 import luna.command.ListCommand;
 import luna.command.MarkCommand;
 import luna.command.TodoCommand;
@@ -28,7 +30,7 @@ public class Parser {
 
         switch (commandWord) {
             case "list":
-                return new ListCommand();
+                return parseListCommand(input);
             case "bye":
                 return new ExitCommand();
             case "mark":
@@ -45,8 +47,29 @@ public class Parser {
                 return new DeleteCommand(input);
             case "find":
                 return new FindCommand(input);
+            case "archive":
+                return new ArchiveCommand(input);
             default:
                 throw new LunaException("I don't know this command :(");
         }
+    }
+
+    /**
+     * Parses a command that lists either active or archived tasks.
+     *
+     * @param input Full command entered by the user.
+     * @return Command for the requested task collection.
+     * @throws LunaException If the list command has unsupported arguments.
+     */
+    private static Command parseListCommand(String input) throws LunaException {
+        String arguments = input.substring(4).trim();
+        if (arguments.isEmpty()) {
+            return new ListCommand();
+        }
+        if (arguments.equalsIgnoreCase("archived")) {
+            return new ListArchivedCommand();
+        }
+
+        throw new LunaException("Please use list or list archived.");
     }
 }

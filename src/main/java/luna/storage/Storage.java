@@ -3,6 +3,7 @@ package luna.storage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -22,14 +23,16 @@ import luna.task.Todo;
  */
 public class Storage {
     private static final Path DEFAULT_FILE_PATH = Path.of("./data/luna.txt");
+    private static final Path DEFAULT_ARCHIVE_FILE_PATH = Path.of("./data/archive.txt");
     private static final String FIELD_SEPARATOR = " | ";
     private final Path filePath;
+    private final Path archiveFilePath;
 
     /**
      * Creates storage backed by Luna's default data file.
      */
     public Storage() {
-        this(DEFAULT_FILE_PATH);
+        this(DEFAULT_FILE_PATH, DEFAULT_ARCHIVE_FILE_PATH);
     }
 
     /**
@@ -38,7 +41,18 @@ public class Storage {
      * @param filePath File used to save and load tasks.
      */
     Storage(Path filePath) {
+        this(filePath, filePath.resolveSibling("archive.txt"));
+    }
+
+    /**
+     * Creates storage backed by the given active and archive files.
+     *
+     * @param filePath File used to save and load active tasks.
+     * @param archiveFilePath File used to append and load archived tasks.
+     */
+    Storage(Path filePath, Path archiveFilePath) {
         this.filePath = filePath;
+        this.archiveFilePath = archiveFilePath;
     }
 
     /**
@@ -49,11 +63,51 @@ public class Storage {
      * @throws LunaException If the saved file format is invalid.
      */
     public List<Task> loadTasks() throws IOException, LunaException {
-        if (!Files.exists(filePath)) {
+        return loadTasksFrom(filePath);
+    }
+
+    /**
+     * Loads all archived tasks in the order they were archived.
+     *
+     * @return List of archived tasks loaded from storage.
+     * @throws IOException If reading the archive file fails.
+     * @throws LunaException If the archived file format is invalid.
+     */
+    public List<Task> loadArchivedTasks() throws IOException, LunaException {
+        return loadTasksFrom(archiveFilePath);
+    }
+
+    /**
+     * Appends tasks to the archive without replacing earlier archive entries.
+     *
+     * @param tasks Tasks to append to the archive.
+     * @throws IOException If writing the archive file fails.
+     */
+    public void archiveTasks(List<Task> tasks) throws IOException {
+        assert tasks != null : "Archived tasks must be provided as a non-null collection";
+        assert tasks.stream().allMatch(task -> task != null)
+                : "The archive must not contain null tasks";
+
+        if (tasks.isEmpty()) {
+            return;
+        }
+
+        Files.createDirectories(archiveFilePath.getParent());
+        List<String> lines = tasks.stream()
+                .map(Task::toStorageString)
+                .toList();
+        Files.write(archiveFilePath, lines, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+    }
+
+    /**
+     * Loads task records from the given file.
+     */
+    private List<Task> loadTasksFrom(Path sourcePath) throws IOException, LunaException {
+        if (!Files.exists(sourcePath)) {
             return new ArrayList<>();
         }
 
-        List<String> lines = Files.readAllLines(filePath);
+        List<String> lines = Files.readAllLines(sourcePath);
         List<Task> tasks = new ArrayList<>();
 
         for (String line : lines) {
