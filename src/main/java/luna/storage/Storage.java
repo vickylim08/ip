@@ -120,26 +120,48 @@ public class Storage {
                 case "T":
                     return new Todo(joinDescription(parts, 0));
                 case "D":
-                    if (parts.length < 4) {
-                        throw new LunaException("Saved deadline task is corrupted.");
-                    }
-
-                    LocalDate deadlineDate = LocalDate.parse(parts[parts.length - 1]);
-                    return new Deadline(joinDescription(parts, 1), deadlineDate);
+                    return createDeadline(parts);
                 case "E":
-                    if (parts.length < 5) {
-                        throw new LunaException("Saved event task is corrupted.");
-                    }
-
-                    LocalDateTime from = LocalDateTime.parse(parts[parts.length - 2]);
-                    LocalDateTime to = LocalDateTime.parse(parts[parts.length - 1]);
-                    return new Event(joinDescription(parts, 2), from, to);
+                    return createEvent(parts);
                 default:
                     throw new LunaException("Saved task type is invalid.");
             }
         } catch (DateTimeParseException e) {
             throw new LunaException("Saved date or time is invalid.");
         }
+    }
+
+    /**
+     * Creates a deadline from validated storage fields.
+     *
+     * @param parts Fields extracted from a saved deadline.
+     * @return Deadline represented by the fields.
+     * @throws LunaException If the field count is invalid.
+     */
+    private Deadline createDeadline(String[] parts) throws LunaException {
+        if (parts.length < 4) {
+            throw new LunaException("Saved deadline task is corrupted.");
+        }
+
+        LocalDate deadlineDate = LocalDate.parse(parts[parts.length - 1]);
+        return new Deadline(joinDescription(parts, 1), deadlineDate);
+    }
+
+    /**
+     * Creates an event from validated storage fields.
+     *
+     * @param parts Fields extracted from a saved event.
+     * @return Event represented by the fields.
+     * @throws LunaException If the field count is invalid.
+     */
+    private Event createEvent(String[] parts) throws LunaException {
+        if (parts.length < 5) {
+            throw new LunaException("Saved event task is corrupted.");
+        }
+
+        LocalDateTime from = LocalDateTime.parse(parts[parts.length - 2]);
+        LocalDateTime to = LocalDateTime.parse(parts[parts.length - 1]);
+        return new Event(joinDescription(parts, 2), from, to);
     }
 
     /**

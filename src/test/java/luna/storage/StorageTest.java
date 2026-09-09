@@ -1,9 +1,11 @@
 package luna.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,5 +48,14 @@ public class StorageTest {
         assertEquals(deadline.getByDate(), ((Deadline) loadedTasks.get(1)).getByDate());
         assertEquals(event.getFromDateTime(), ((Event) loadedTasks.get(2)).getFromDateTime());
         assertEquals(event.getToDateTime(), ((Event) loadedTasks.get(2)).getToDateTime());
+    }
+
+    @Test
+    public void loadTasks_invalidDeadlineDate_throwsLunaException() throws IOException {
+        Path dataFile = temporaryDirectory.resolve("luna.txt");
+        Files.writeString(dataFile, "D | 0 | submit report | invalid-date");
+        Storage storage = new Storage(dataFile);
+
+        assertThrows(LunaException.class, storage::loadTasks);
     }
 }
