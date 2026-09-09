@@ -1,6 +1,7 @@
 package luna.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -51,6 +52,24 @@ public class TaskListTest {
         TaskList taskList = new TaskList(new Todo("submit quiz"));
 
         assertThrows(IndexOutOfBoundsException.class, () -> taskList.mark(1));
+    }
+
+    @Test
+    public void unmark_doneTask_marksTaskNotDoneAndReturnsSameTask() {
+        Todo todo = new Todo("submit quiz");
+        todo.markAsDone();
+        TaskList taskList = new TaskList(todo);
+
+        Task unmarkedTask = taskList.unmark(0);
+
+        assertSame(todo, unmarkedTask);
+        assertFalse(unmarkedTask.isDone());
+        assertEquals("[ ]", unmarkedTask.getStatusIcon());
+    }
+
+    @Test
+    public void constructor_nullTask_assertsTaskListInvariant() {
+        assertThrows(AssertionError.class, () -> new TaskList((Task) null));
     }
 
     @Test
