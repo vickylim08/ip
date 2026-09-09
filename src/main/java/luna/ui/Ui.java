@@ -87,7 +87,7 @@ public class Ui {
      * Shows the exit message.
      */
     public void showExit() {
-        showMessage(formatResponse("Bye. Hope to see you again soon!"));
+        showMessage(formatResponse(EXIT_TEXT));
     }
 
     /**
