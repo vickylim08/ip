@@ -18,10 +18,13 @@ public class Ui {
             + "> event <desc> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>: "
             + "Adds a task that spans across a specific time\n"
             + "> list: Displays all currently saved items with index numbers\n"
+            + "> list archived: Displays all archived tasks with index numbers\n"
             + "> find <keyword>: Displays tasks whose descriptions contain the keyword\n"
             + "> mark <index>: Marks the task at the specified index number as completed ([X]).\n"
             + "> unmark <index>: Marks the task at the specified index number as not done ([ ]).\n"
             + "> delete <index>: Removes the task at the specified index number from the list.\n"
+            + "> archive <index>: Moves the task at the specified index into the archive.\n"
+            + "> archive all: Moves every task into the archive.\n"
             + "> bye: Exits the program";
     private static final String EXIT_TEXT = "Bye. Hope to see you again soon!";
     private final Scanner scanner;
@@ -109,6 +112,20 @@ public class Ui {
     }
 
     /**
+     * Shows all tasks currently stored in the archive.
+     *
+     * @param archivedTasks Archived tasks to display.
+     */
+    public void showArchivedTasks(List<Task> archivedTasks) {
+        if (archivedTasks.isEmpty()) {
+            showMessage(formatResponse("There are no archived tasks."));
+            return;
+        }
+
+        showTasks("Here are your archived tasks:", archivedTasks);
+    }
+
+    /**
      * Shows a collection of tasks under the given heading.
      *
      * @param heading Heading shown before the task entries.
@@ -158,6 +175,27 @@ public class Ui {
      */
     public void showDeleteSuccess(Task task, int taskCount) {
         showTaskCountChange("Noted. I've removed this task", task, taskCount);
+    }
+
+    /**
+     * Shows a confirmation after tasks have been archived.
+     *
+     * @param archivedTaskCount Number of tasks moved into the archive.
+     * @param activeTaskCount Number of tasks remaining in the active list.
+     */
+    public void showArchiveSuccess(int archivedTaskCount, int activeTaskCount) {
+        String archivedTaskNoun = archivedTaskCount == 1 ? "task" : "tasks";
+        String activeTaskNoun = activeTaskCount == 1 ? "task" : "tasks";
+        showMessage(formatResponse("Archived " + archivedTaskCount + " " + archivedTaskNoun
+                + " to data/archive.txt.\n"
+                + "Now you have " + activeTaskCount + " " + activeTaskNoun + " in the list."));
+    }
+
+    /**
+     * Shows that an archive-all request had no active tasks to archive.
+     */
+    public void showNoTasksToArchive() {
+        showMessage(formatResponse("There are no tasks to archive."));
     }
 
     /**

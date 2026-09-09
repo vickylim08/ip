@@ -68,6 +68,15 @@ public class TaskListTest {
     }
 
     @Test
+    public void clear_tasksPresent_removesEveryTask() {
+        TaskList taskList = new TaskList(new Todo("read book"), new Todo("submit quiz"));
+
+        taskList.clear();
+
+        assertEquals(0, taskList.size());
+    }
+
+    @Test
     public void constructor_nullTask_assertsTaskListInvariant() {
         assertThrows(AssertionError.class, () -> new TaskList((Task) null));
     }

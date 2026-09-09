@@ -1,17 +1,20 @@
 package luna.parser;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
 import luna.LunaException;
+import luna.command.ArchiveCommand;
 import luna.command.Command;
 import luna.command.DeadlineCommand;
 import luna.command.DeleteCommand;
 import luna.command.EventCommand;
 import luna.command.ExitCommand;
 import luna.command.FindCommand;
+import luna.command.ListArchivedCommand;
 import luna.command.ListCommand;
 import luna.command.MarkCommand;
 import luna.command.TodoCommand;
@@ -26,6 +29,20 @@ public class ParserTest {
         Command command = Parser.parse("list");
 
         assertInstanceOf(ListCommand.class, command);
+    }
+
+    @Test
+    public void parse_listArchivedCommand_returnsListArchivedCommand() throws LunaException {
+        Command command = Parser.parse("list archived");
+
+        assertInstanceOf(ListArchivedCommand.class, command);
+    }
+
+    @Test
+    public void parse_listWithUnsupportedArguments_throwsLunaException() {
+        LunaException exception = assertThrows(LunaException.class, () -> Parser.parse("list archive"));
+
+        assertEquals("Please use list or list archived.", exception.getMessage());
     }
 
     @Test
@@ -82,6 +99,20 @@ public class ParserTest {
         Command command = Parser.parse("find book");
 
         assertInstanceOf(FindCommand.class, command);
+    }
+
+    @Test
+    public void parse_archiveIndexCommand_returnsArchiveCommand() throws LunaException {
+        Command command = Parser.parse("archive 1");
+
+        assertInstanceOf(ArchiveCommand.class, command);
+    }
+
+    @Test
+    public void parse_archiveAllCommand_returnsArchiveCommand() throws LunaException {
+        Command command = Parser.parse("archive all");
+
+        assertInstanceOf(ArchiveCommand.class, command);
     }
 
     @Test
