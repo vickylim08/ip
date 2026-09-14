@@ -1,116 +1,129 @@
 package luna.ui;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 /**
- * Represents one chat message in the JavaFX conversation view.
+ * Represents one message in the JavaFX conversation view.
+ *
+ * <p>User commands and Luna responses deliberately use different structures: commands appear as compact chips,
+ * while responses appear as wider app output panels.</p>
  */
 public class DialogBox extends HBox {
-    private static final String USER_BUBBLE_STYLE = """
-            -fx-background-color: #d9fdd3;
-            -fx-background-radius: 16;
-            -fx-padding: 10 14 10 14;
+    private static final double USER_MESSAGE_MAX_WIDTH = 260.0;
+    private static final String USER_MESSAGE_STYLE = """
+            -fx-background-color: #2563eb;
+            -fx-background-radius: 16 16 4 16;
+            -fx-padding: 9 14 9 14;
             -fx-font-size: 13px;
+            -fx-text-fill: white;
             """;
-    private static final String LUNA_BUBBLE_STYLE = """
-            -fx-background-color: #f3f4f6;
-            -fx-background-radius: 16;
-            -fx-padding: 10 14 10 14;
+    private static final String LUNA_PANEL_STYLE = """
+            -fx-background-color: #f8fafc;
+            -fx-background-radius: 0 10 10 0;
+            -fx-border-color: transparent transparent transparent #6366f1;
+            -fx-border-width: 0 0 0 3;
+            -fx-padding: 10 14 12 14;
+            """;
+    private static final String LUNA_HEADER_STYLE = """
+            -fx-font-size: 10px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #4f46e5;
+            """;
+    private static final String LUNA_MESSAGE_STYLE = """
             -fx-font-size: 13px;
+            -fx-text-fill: #1f2937;
             """;
-    private static final String WELCOME_BUBBLE_STYLE = LUNA_BUBBLE_STYLE + """
+    private static final String WELCOME_MESSAGE_STYLE = LUNA_MESSAGE_STYLE + """
             -fx-font-family: "Monospaced";
             """;
-    private static final String USER_TAG_STYLE = """
-            -fx-background-color: #2563eb;
-            -fx-background-radius: 999;
-            -fx-padding: 6 10 6 10;
-            -fx-text-fill: white;
-            -fx-font-weight: bold;
-            """;
-    private static final String LUNA_TAG_STYLE = """
-            -fx-background-color: #111827;
-            -fx-background-radius: 999;
-            -fx-padding: 6 10 6 10;
-            -fx-text-fill: white;
-            -fx-font-weight: bold;
-            """;
 
-    private final Label text;
-    private final Label speakerTag;
-
-    /**
-     * Creates a dialog box with a message bubble and speaker tag.
-     *
-     * @param message Message text to display.
-     * @param speaker Speaker label shown beside the bubble.
-     * @param bubbleStyle Inline CSS applied to the message bubble.
-     * @param speakerStyle Inline CSS applied to the speaker tag.
-     */
-    private DialogBox(String message, String speaker, String bubbleStyle, String speakerStyle) {
-        this.text = new Label(message);
-        this.speakerTag = new Label(speaker);
-
-        text.setWrapText(true);
-        text.setMaxWidth(280);
-        text.setStyle(bubbleStyle);
-
-        speakerTag.setStyle(speakerStyle);
-        speakerTag.setMinWidth(Label.USE_PREF_SIZE);
-
-        setAlignment(Pos.TOP_RIGHT);
-        setSpacing(10);
+    private DialogBox() {
         setPadding(new Insets(2, 4, 2, 4));
-        getChildren().addAll(text, speakerTag);
+        setMaxWidth(Double.MAX_VALUE);
     }
 
     /**
-     * Returns a dialog box representing user input.
+     * Returns a compact, right-aligned chip representing user input.
      *
      * @param message User message text.
      * @return Dialog box aligned for the user.
      */
     public static DialogBox getUserDialog(String message) {
-        return new DialogBox(message, "You", USER_BUBBLE_STYLE, USER_TAG_STYLE);
+        DialogBox dialogBox = new DialogBox();
+        Label messageLabel = createMessageLabel(message, USER_MESSAGE_STYLE);
+
+        messageLabel.setId("user-message");
+        messageLabel.setMaxWidth(USER_MESSAGE_MAX_WIDTH);
+        dialogBox.setAlignment(Pos.TOP_RIGHT);
+        dialogBox.getChildren().add(messageLabel);
+        return dialogBox;
     }
 
     /**
-     * Returns a dialog box representing Luna's response.
+     * Returns a wide response panel representing Luna's output.
      *
      * @param message Luna response text.
      * @return Dialog box aligned for Luna.
      */
     public static DialogBox getLunaDialog(String message) {
-        DialogBox dialogBox = new DialogBox(message, "Luna", LUNA_BUBBLE_STYLE, LUNA_TAG_STYLE);
-        dialogBox.flip();
-        return dialogBox;
+        return createLunaDialog(message, LUNA_MESSAGE_STYLE);
     }
 
     /**
-     * Returns a monospaced dialog box for Luna's ASCII-art welcome message.
+     * Returns a monospaced response panel for Luna's ASCII-art welcome message.
      *
      * @param message Welcome message containing the ASCII-art banner.
      * @return Monospaced dialog box aligned for Luna.
      */
     public static DialogBox getWelcomeDialog(String message) {
-        DialogBox dialogBox = new DialogBox(message, "Luna", WELCOME_BUBBLE_STYLE, LUNA_TAG_STYLE);
-        dialogBox.flip();
+        return createLunaDialog(message, WELCOME_MESSAGE_STYLE);
+    }
+
+    /**
+     * Builds Luna's app-output presentation with a header and a full-width body.
+     *
+     * @param message Luna response text.
+     * @param messageStyle Inline CSS applied to the response body.
+     * @return Dialog box containing the response panel.
+     */
+    private static DialogBox createLunaDialog(String message, String messageStyle) {
+        DialogBox dialogBox = new DialogBox();
+        VBox responsePanel = new VBox(5);
+        Label headerLabel = new Label("LUNA");
+        Label messageLabel = createMessageLabel(message, messageStyle);
+
+        responsePanel.setId("luna-response");
+        responsePanel.setStyle(LUNA_PANEL_STYLE);
+        responsePanel.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(responsePanel, Priority.ALWAYS);
+
+        headerLabel.setId("luna-header");
+        headerLabel.setStyle(LUNA_HEADER_STYLE);
+        messageLabel.setId("luna-message");
+        messageLabel.setMaxWidth(Double.MAX_VALUE);
+
+        responsePanel.getChildren().addAll(headerLabel, messageLabel);
+        dialogBox.setAlignment(Pos.TOP_LEFT);
+        dialogBox.getChildren().add(responsePanel);
         return dialogBox;
     }
 
     /**
-     * Flips the dialog box so the speaker tag appears on the left.
+     * Creates a wrapping label shared by the two message presentations.
+     *
+     * @param message Text to display.
+     * @param style Inline CSS applied to the label.
+     * @return Configured message label.
      */
-    private void flip() {
-        setAlignment(Pos.TOP_LEFT);
-        ObservableList<Node> children = FXCollections.observableArrayList(getChildren());
-        FXCollections.reverse(children);
-        getChildren().setAll(children);
+    private static Label createMessageLabel(String message, String style) {
+        Label messageLabel = new Label(message);
+        messageLabel.setWrapText(true);
+        messageLabel.setStyle(style);
+        return messageLabel;
     }
 }
