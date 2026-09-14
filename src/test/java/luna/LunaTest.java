@@ -48,6 +48,7 @@ public class LunaTest {
         assertTrue(response.contains("I've added this task"));
         assertTrue(response.contains("[T][ ] read book"));
         assertFalse(response.contains("___"));
+        assertFalse(luna.isLatestResponseError());
         assertEquals(List.of("T | 0 | read book"), storage.getSavedTasks());
     }
 
@@ -58,6 +59,7 @@ public class LunaTest {
         String response = luna.getResponse("unknown");
 
         assertTrue(response.contains("Oh no! I don't know this command :("));
+        assertTrue(luna.isLatestResponseError());
     }
 
     @Test

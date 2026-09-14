@@ -38,6 +38,23 @@ public class DialogBox extends HBox {
             -fx-font-size: 13px;
             -fx-text-fill: #1f2937;
             """;
+    private static final String ERROR_PANEL_STYLE = """
+            -fx-background-color: #fff1f2;
+            -fx-background-radius: 0 10 10 0;
+            -fx-border-color: #fecdd3 #fecdd3 #fecdd3 #dc2626;
+            -fx-border-width: 1 1 1 4;
+            -fx-border-radius: 0 10 10 0;
+            -fx-padding: 10 14 12 14;
+            """;
+    private static final String ERROR_HEADER_STYLE = """
+            -fx-font-size: 11px;
+            -fx-font-weight: bold;
+            -fx-text-fill: #b91c1c;
+            """;
+    private static final String ERROR_MESSAGE_STYLE = """
+            -fx-font-size: 13px;
+            -fx-text-fill: #7f1d1d;
+            """;
     private static final String WELCOME_MESSAGE_STYLE = LUNA_MESSAGE_STYLE + """
             -fx-font-family: "Monospaced";
             """;
@@ -71,7 +88,18 @@ public class DialogBox extends HBox {
      * @return Dialog box aligned for Luna.
      */
     public static DialogBox getLunaDialog(String message) {
-        return createLunaDialog(message, LUNA_MESSAGE_STYLE);
+        return createLunaDialog(message, "LUNA", LUNA_PANEL_STYLE, LUNA_HEADER_STYLE, LUNA_MESSAGE_STYLE);
+    }
+
+    /**
+     * Returns a visually prominent panel representing an error from Luna.
+     *
+     * @param message Error message text.
+     * @return Dialog box styled to draw attention to the error.
+     */
+    public static DialogBox getErrorDialog(String message) {
+        return createLunaDialog(message, "ERROR — CHECK YOUR COMMAND", ERROR_PANEL_STYLE,
+                ERROR_HEADER_STYLE, ERROR_MESSAGE_STYLE);
     }
 
     /**
@@ -81,29 +109,33 @@ public class DialogBox extends HBox {
      * @return Monospaced dialog box aligned for Luna.
      */
     public static DialogBox getWelcomeDialog(String message) {
-        return createLunaDialog(message, WELCOME_MESSAGE_STYLE);
+        return createLunaDialog(message, "LUNA", LUNA_PANEL_STYLE, LUNA_HEADER_STYLE, WELCOME_MESSAGE_STYLE);
     }
 
     /**
      * Builds Luna's app-output presentation with a header and a full-width body.
      *
      * @param message Luna response text.
+     * @param header Header describing the response type.
+     * @param panelStyle Inline CSS applied to the response panel.
+     * @param headerStyle Inline CSS applied to the response header.
      * @param messageStyle Inline CSS applied to the response body.
      * @return Dialog box containing the response panel.
      */
-    private static DialogBox createLunaDialog(String message, String messageStyle) {
+    private static DialogBox createLunaDialog(String message, String header, String panelStyle,
+            String headerStyle, String messageStyle) {
         DialogBox dialogBox = new DialogBox();
         VBox responsePanel = new VBox(5);
-        Label headerLabel = new Label("LUNA");
+        Label headerLabel = new Label(header);
         Label messageLabel = createMessageLabel(message, messageStyle);
 
         responsePanel.setId("luna-response");
-        responsePanel.setStyle(LUNA_PANEL_STYLE);
+        responsePanel.setStyle(panelStyle);
         responsePanel.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(responsePanel, Priority.ALWAYS);
 
         headerLabel.setId("luna-header");
-        headerLabel.setStyle(LUNA_HEADER_STYLE);
+        headerLabel.setStyle(headerStyle);
         messageLabel.setId("luna-message");
         messageLabel.setMaxWidth(Double.MAX_VALUE);
 

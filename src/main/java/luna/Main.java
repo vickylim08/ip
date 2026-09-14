@@ -121,7 +121,7 @@ public class Main extends Application {
     private void showStartupMessages() {
         String startupNotice = luna.consumePendingResponse();
         if (!startupNotice.isBlank()) {
-            dialogContainer.getChildren().add(DialogBox.getLunaDialog(startupNotice));
+            dialogContainer.getChildren().add(createResponseDialog(startupNotice));
         }
 
         dialogContainer.getChildren().add(DialogBox.getWelcomeDialog(luna.getWelcomeMessage()));
@@ -139,7 +139,7 @@ public class Main extends Application {
         String response = luna.getResponse(input);
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input),
-                DialogBox.getLunaDialog(response)
+                createResponseDialog(response)
         );
         userInput.clear();
 
@@ -147,5 +147,19 @@ public class Main extends Application {
             userInput.setDisable(true);
             sendButton.setDisable(true);
         }
+    }
+
+    /**
+     * Creates the appropriate Luna panel for a normal response or an error.
+     *
+     * @param response Response text to display.
+     * @return Dialog box using the response's presentation type.
+     */
+    private DialogBox createResponseDialog(String response) {
+        if (luna.isLatestResponseError()) {
+            return DialogBox.getErrorDialog(response);
+        }
+
+        return DialogBox.getLunaDialog(response);
     }
 }

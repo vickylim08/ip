@@ -18,6 +18,7 @@ public class Luna {
     private final Storage storage;
     private final TaskList tasks;
     private boolean isExitRequested;
+    private boolean isLatestResponseError;
 
     /**
      * Creates a Luna application with its UI, storage, and task list.
@@ -35,6 +36,7 @@ public class Luna {
     public Luna(Ui ui, Storage storage) {
         this.ui = ui;
         this.storage = storage;
+        this.isLatestResponseError = false;
         this.tasks = loadTasks();
         this.isExitRequested = false;
     }
@@ -73,6 +75,7 @@ public class Luna {
      */
     public String getResponse(String input) {
         String trimmedInput = input == null ? "" : input.trim();
+        isLatestResponseError = false;
         if (trimmedInput.isEmpty()) {
             return "";
         }
@@ -82,10 +85,13 @@ public class Luna {
             command.execute(tasks, ui, storage);
             isExitRequested = command.isExit();
         } catch (LunaException e) {
+            isLatestResponseError = true;
             ui.showError(e.getMessage());
         } catch (NumberFormatException e) {
+            isLatestResponseError = true;
             ui.showError("Please provide a valid integer for task number.");
         } catch (IndexOutOfBoundsException e) {
+            isLatestResponseError = true;
             ui.showError("That task number does not exist in your list.");
         }
 
@@ -99,6 +105,15 @@ public class Luna {
      */
     public boolean isExitRequested() {
         return isExitRequested;
+    }
+
+    /**
+     * Returns whether the most recently generated response reports an error.
+     *
+     * @return {@code true} if the latest response should use the error presentation.
+     */
+    public boolean isLatestResponseError() {
+        return isLatestResponseError;
     }
 
     /**
@@ -130,6 +145,7 @@ public class Luna {
             assert loadedTasks != null : "Storage must return a non-null task collection";
             return new TaskList(loadedTasks);
         } catch (IOException | LunaException e) {
+            isLatestResponseError = true;
             ui.showLoadingError();
             return new TaskList();
         }
