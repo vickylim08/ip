@@ -58,7 +58,7 @@ public class FindCommandTest {
         command.execute(tasks, createUi(), new Storage());
 
         String output = outputStream.toString(StandardCharsets.UTF_8).replace("\r\n", "\n");
-        assertTrue(output.contains("Here are the matching tasks in your list:"));
+        assertTrue(output.contains("These tasks came into view:"));
         assertTrue(output.contains("1. [T][ ] read book"));
         assertTrue(output.contains("2. [T][ ] return book"));
     }

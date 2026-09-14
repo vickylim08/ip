@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -29,6 +30,8 @@ public class Main extends Application {
     private static final double INPUT_HEIGHT = 36.0;
     private static final double SEND_BUTTON_WIDTH = 58.0;
     private static final double EDGE_PADDING = 8.0;
+    private static final double HEADER_ICON_SIZE = 38.0;
+    private static final String MOON_ICON = "\u263E";
     private static final String STYLESHEET_PATH = "/luna.css";
 
     private final Luna luna;
@@ -96,7 +99,7 @@ public class Main extends Application {
      * @param scene Scene displayed on the stage.
      */
     private void configureStage(Stage stage, AnchorPane mainLayout, Scene scene) {
-        stage.setTitle("Luna");
+        stage.setTitle("Luna - Night-shift planner");
         stage.setResizable(true);
         stage.setMinWidth(MINIMUM_WINDOW_WIDTH);
         stage.setMinHeight(MINIMUM_WINDOW_HEIGHT);
@@ -140,12 +143,44 @@ public class Main extends Application {
      * Shows any startup notice and Luna's welcome message.
      */
     private void showStartupMessages() {
+        dialogContainer.getChildren().add(createAppHeader());
+
         String startupNotice = luna.consumePendingResponse();
         if (!startupNotice.isBlank()) {
             dialogContainer.getChildren().add(createResponseDialog(startupNotice));
         }
 
         dialogContainer.getChildren().add(DialogBox.getWelcomeDialog(luna.getWelcomeMessage()));
+    }
+
+    /**
+     * Creates the branded header shown above the conversation.
+     *
+     * @return Compact header matching Luna's night-shift personality.
+     */
+    private HBox createAppHeader() {
+        Label iconLabel = new Label(MOON_ICON);
+        iconLabel.setMinSize(HEADER_ICON_SIZE, HEADER_ICON_SIZE);
+        iconLabel.setPrefSize(HEADER_ICON_SIZE, HEADER_ICON_SIZE);
+        iconLabel.setAlignment(Pos.CENTER);
+        iconLabel.getStyleClass().add("app-header-icon");
+
+        Label titleLabel = new Label("Luna");
+        titleLabel.getStyleClass().add("app-header-title");
+        Label subtitleLabel = new Label("Calm focus after dark");
+        subtitleLabel.getStyleClass().add("app-header-subtitle");
+        VBox identity = new VBox(1, titleLabel, subtitleLabel);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label statusLabel = new Label("NIGHT SHIFT");
+        statusLabel.getStyleClass().add("app-header-status");
+
+        HBox appHeader = new HBox(11, iconLabel, identity, spacer, statusLabel);
+        appHeader.setAlignment(Pos.CENTER_LEFT);
+        appHeader.getStyleClass().add("app-header");
+        return appHeader;
     }
 
     /**

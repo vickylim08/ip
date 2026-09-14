@@ -21,7 +21,7 @@ public class UiTest {
 
         ui.showTaskList(tasks);
 
-        assertEquals("Here are the tasks in your list:\n1. [T][ ] read book", ui.consumeLatestResponse());
+        assertEquals("Here's what's on your radar:\n1. [T][ ] read book", ui.consumeLatestResponse());
     }
 
     @Test
@@ -31,7 +31,7 @@ public class UiTest {
 
         ui.showMatchingTasks(matchingTasks);
 
-        assertEquals("Here are the matching tasks in your list:\n1. [T][ ] read book",
+        assertEquals("These tasks came into view:\n1. [T][ ] read book",
                 ui.consumeLatestResponse());
     }
 
@@ -42,7 +42,8 @@ public class UiTest {
 
         ui.showArchivedTasks(archivedTasks);
 
-        assertEquals("Here are your archived tasks:\n1. [T][ ] read book", ui.consumeLatestResponse());
+        assertEquals("These tasks are resting in your archive:\n1. [T][ ] read book",
+                ui.consumeLatestResponse());
     }
 
     @Test
@@ -51,7 +52,7 @@ public class UiTest {
 
         ui.showArchivedTasks(List.of());
 
-        assertEquals("There are no archived tasks.", ui.consumeLatestResponse());
+        assertEquals("Your archive is quiet - nothing is resting there yet.", ui.consumeLatestResponse());
     }
 
     @Test
@@ -61,9 +62,9 @@ public class UiTest {
 
         ui.showAddSuccess(task, 1);
 
-        assertEquals("Got it. I've added this task:\n"
+        assertEquals("It's on your radar:\n"
                 + "[T][ ] read book\n"
-                + "Now you have 1 tasks in the list.", ui.consumeLatestResponse());
+                + "You now have 1 task on your radar.", ui.consumeLatestResponse());
     }
 
     @Test
@@ -73,9 +74,9 @@ public class UiTest {
 
         ui.showDeleteSuccess(task, 0);
 
-        assertEquals("Noted. I've removed this task:\n"
+        assertEquals("Cleared from your path:\n"
                 + "[T][ ] read book\n"
-                + "Now you have 0 tasks in the list.", ui.consumeLatestResponse());
+                + "You now have 0 tasks on your radar.", ui.consumeLatestResponse());
     }
 
     @Test
@@ -84,8 +85,8 @@ public class UiTest {
 
         ui.showArchiveSuccess(1, 1);
 
-        assertEquals("Archived 1 task to data/archive.txt.\n"
-                + "Now you have 1 task in the list.", ui.consumeLatestResponse());
+        assertEquals("Tucked away 1 task to data/archive.txt.\n"
+                + "You have 1 task still on your radar.", ui.consumeLatestResponse());
     }
 
     @Test
@@ -94,6 +95,7 @@ public class UiTest {
 
         ui.showNoTasksToArchive();
 
-        assertEquals("There are no tasks to archive.", ui.consumeLatestResponse());
+        assertEquals("Your active list is already clear - there is nothing to archive.",
+                ui.consumeLatestResponse());
     }
 }

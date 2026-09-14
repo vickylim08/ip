@@ -7,7 +7,7 @@ import luna.task.Task;
 import luna.task.TaskList;
 
 /**
- * Handles all command-line interactions with the user.
+ * Handles user-facing messages in Luna's calm night-shift voice.
  */
 public class Ui {
     private static final String DIVIDER_LINE = "   _________________________________________________________________";
@@ -17,7 +17,8 @@ public class Ui {
             + "| |___| |_| | | | | (_| |\n"
             + "|_____|\\__,_|_| |_|\\__,_|";
     private static final String WELCOME_TEXT = BANNER_TEXT
-            + "\n\nHi, I'm Luna.\nWhat can I do for you?";
+            + "\n\nHi, I'm Luna.\nLet's bring your tasks into focus.";
+    private static final String GUI_TAGLINE = "Your calm night-shift task companion.";
     private static final String AVAILABLE_COMMANDS = "Available commands:\n"
             + "> todo <desc>: Adds a todo task with the given description\n"
             + "> deadline <desc> /by <yyyy-MM-dd>: Adds a deadline task with the given due date\n"
@@ -32,7 +33,7 @@ public class Ui {
             + "> archive <index>: Moves the task at the specified index into the archive.\n"
             + "> archive all: Moves every task into the archive.\n"
             + "> bye: Exits the program";
-    private static final String EXIT_TEXT = "Bye. Hope to see you again soon!";
+    private static final String EXIT_TEXT = "The moon is setting. Rest well - I'll keep your tasks safe.";
     private final Scanner scanner;
     private final boolean shouldPrintToConsole;
     private String latestResponse;
@@ -75,7 +76,7 @@ public class Ui {
                     + AVAILABLE_COMMANDS + '\n';
         }
 
-        return "Luna\nYour personal task companion.\n\n" + AVAILABLE_COMMANDS;
+        return "Plan your night\n" + GUI_TAGLINE + "\n\n" + AVAILABLE_COMMANDS;
     }
 
     /**
@@ -105,7 +106,7 @@ public class Ui {
      * @param tasks Tasks to display.
      */
     public void showTaskList(TaskList tasks) {
-        showTasks("Here are the tasks in your list:", tasks.asList());
+        showTasks("Here's what's on your radar:", tasks.asList());
     }
 
     /**
@@ -114,7 +115,7 @@ public class Ui {
      * @param matchingTasks Tasks that matched the search keyword.
      */
     public void showMatchingTasks(List<Task> matchingTasks) {
-        showTasks("Here are the matching tasks in your list:", matchingTasks);
+        showTasks("These tasks came into view:", matchingTasks);
     }
 
     /**
@@ -124,11 +125,11 @@ public class Ui {
      */
     public void showArchivedTasks(List<Task> archivedTasks) {
         if (archivedTasks.isEmpty()) {
-            showMessage(formatResponse("There are no archived tasks."));
+            showMessage(formatResponse("Your archive is quiet - nothing is resting there yet."));
             return;
         }
 
-        showTasks("Here are your archived tasks:", archivedTasks);
+        showTasks("These tasks are resting in your archive:", archivedTasks);
     }
 
     /**
@@ -151,7 +152,7 @@ public class Ui {
      * @param task Task that was marked.
      */
     public void showMarkSuccess(Task task) {
-        showMessage(formatResponse("Nice! I've marked this as done:\n" + task));
+        showMessage(formatResponse("Nicely done - this task is complete:\n" + task));
     }
 
     /**
@@ -160,7 +161,7 @@ public class Ui {
      * @param task Task that was unmarked.
      */
     public void showUnmarkSuccess(Task task) {
-        showMessage(formatResponse("OK, I've marked this task as not done yet:\n" + task));
+        showMessage(formatResponse("No rush. This task is back on your active path:\n" + task));
     }
 
     /**
@@ -170,7 +171,7 @@ public class Ui {
      * @param taskCount Current number of tasks in the list.
      */
     public void showAddSuccess(Task task, int taskCount) {
-        showTaskCountChange("Got it. I've added this task", task, taskCount);
+        showTaskCountChange("It's on your radar", task, taskCount);
     }
 
     /**
@@ -180,7 +181,7 @@ public class Ui {
      * @param taskCount Current number of tasks remaining in the list.
      */
     public void showDeleteSuccess(Task task, int taskCount) {
-        showTaskCountChange("Noted. I've removed this task", task, taskCount);
+        showTaskCountChange("Cleared from your path", task, taskCount);
     }
 
     /**
@@ -192,16 +193,16 @@ public class Ui {
     public void showArchiveSuccess(int archivedTaskCount, int activeTaskCount) {
         String archivedTaskNoun = archivedTaskCount == 1 ? "task" : "tasks";
         String activeTaskNoun = activeTaskCount == 1 ? "task" : "tasks";
-        showMessage(formatResponse("Archived " + archivedTaskCount + " " + archivedTaskNoun
+        showMessage(formatResponse("Tucked away " + archivedTaskCount + " " + archivedTaskNoun
                 + " to data/archive.txt.\n"
-                + "Now you have " + activeTaskCount + " " + activeTaskNoun + " in the list."));
+                + "You have " + activeTaskCount + " " + activeTaskNoun + " still on your radar."));
     }
 
     /**
      * Shows that an archive-all request had no active tasks to archive.
      */
     public void showNoTasksToArchive() {
-        showMessage(formatResponse("There are no tasks to archive."));
+        showMessage(formatResponse("Your active list is already clear - there is nothing to archive."));
     }
 
     /**
@@ -210,7 +211,7 @@ public class Ui {
      * @param message Error message to display.
      */
     public void showError(String message) {
-        showMessage(formatResponse("Oh no! " + message));
+        showMessage(formatResponse("I lost that signal. " + message));
     }
 
     /**
@@ -228,9 +229,10 @@ public class Ui {
      * @param taskCount Current number of tasks in the list.
      */
     private void showTaskCountChange(String actionMessage, Task task, int taskCount) {
+        String taskNoun = taskCount == 1 ? "task" : "tasks";
         showMessage(formatResponse(actionMessage + ":\n"
                 + task + '\n'
-                + "Now you have " + taskCount + " tasks in the list."));
+                + "You now have " + taskCount + " " + taskNoun + " on your radar."));
     }
 
     /**

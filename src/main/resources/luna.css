@@ -10,17 +10,53 @@
 .dialog-container,
 .chat-scroll,
 .chat-scroll > .viewport {
-    -fx-background-color: #f7f5fb;
+    -fx-background-color: #f3f0f8;
 }
 
 .chat-scroll {
-    -fx-background: #f7f5fb;
+    -fx-background: #f3f0f8;
     -fx-border-color: transparent;
     -fx-padding: 0;
 }
 
 .chat-scroll .scroll-bar:vertical {
     -fx-pref-width: 8;
+}
+
+.app-header {
+    -fx-background-color: linear-gradient(to right, #281b3f, #5b21b6);
+    -fx-background-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(40, 27, 63, 0.22), 14, 0, 0, 3);
+    -fx-padding: 11 14;
+}
+
+.app-header-icon {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+    -fx-background-radius: 19;
+    -fx-font-size: 22px;
+    -fx-text-fill: #faf5ff;
+}
+
+.app-header-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.app-header-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #ddd6fe;
+}
+
+.app-header-status {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-radius: 999;
+    -fx-border-color: rgba(255, 255, 255, 0.20);
+    -fx-border-radius: 999;
+    -fx-font-size: 9px;
+    -fx-font-weight: bold;
+    -fx-padding: 5 8;
+    -fx-text-fill: #ede9fe;
 }
 
 .composer {
@@ -90,8 +126,9 @@
 }
 
 .moon-icon {
-    -fx-background-color: #ede9fe;
-    -fx-text-fill: #6d28d9;
+    -fx-background-color: #35264f;
+    -fx-effect: dropshadow(gaussian, rgba(53, 38, 79, 0.18), 6, 0, 0, 1);
+    -fx-text-fill: #f3e8ff;
 }
 
 .luna-card {
@@ -102,7 +139,7 @@
 }
 
 .normal-card {
-    -fx-border-color: transparent transparent transparent #bfdbfe;
+    -fx-border-color: transparent transparent transparent #a5b4fc;
     -fx-border-radius: 14;
     -fx-border-width: 0 0 0 2;
 }
