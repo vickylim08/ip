@@ -77,6 +77,12 @@
     -fx-text-fill: #ffffff;
 }
 
+.user-avatar-frame {
+    -fx-background-color: #ede9fe;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(76, 29, 149, 0.12), 6, 0, 0, 1);
+}
+
 .response-icon {
     -fx-background-radius: 14;
     -fx-font-size: 15px;

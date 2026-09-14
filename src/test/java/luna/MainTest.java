@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Test;
  */
 public class MainTest {
     @Test
-    public void stylesheet_applicationStarts_resourceIsAvailable() {
+    public void resources_applicationStarts_areAvailable() {
         assertNotNull(MainTest.class.getResource("/luna.css"));
+        assertNotNull(MainTest.class.getResource("/images/user-avatar.png"));
     }
 }

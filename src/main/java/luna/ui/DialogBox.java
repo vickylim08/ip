@@ -3,9 +3,13 @@ package luna.ui;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -18,6 +22,9 @@ public class DialogBox extends HBox {
     private static final double USER_MESSAGE_MAX_WIDTH = 340.0;
     private static final double ICON_SIZE = 28.0;
     private static final String MOON_ICON = "\u263E";
+    private static final String USER_AVATAR_PATH = "/images/user-avatar.png";
+    private static final Image USER_AVATAR = new Image(
+            DialogBox.class.getResourceAsStream(USER_AVATAR_PATH));
 
     private DialogBox() {
         setMaxWidth(Double.MAX_VALUE);
@@ -34,12 +41,35 @@ public class DialogBox extends HBox {
     public static DialogBox getUserDialog(String message) {
         DialogBox dialogBox = new DialogBox();
         Label messageLabel = createWrappingLabel(message, "user-message");
+        StackPane avatar = createUserAvatar();
 
         messageLabel.setId("user-message");
         messageLabel.setMaxWidth(USER_MESSAGE_MAX_WIDTH);
         dialogBox.setAlignment(Pos.TOP_RIGHT);
-        dialogBox.getChildren().add(messageLabel);
+        dialogBox.setSpacing(8);
+        dialogBox.getChildren().addAll(messageLabel, avatar);
         return dialogBox;
+    }
+
+    /**
+     * Creates the small circular profile picture shown beside user input.
+     *
+     * @return Circular avatar containing the bundled user image.
+     */
+    private static StackPane createUserAvatar() {
+        ImageView avatarImage = new ImageView(USER_AVATAR);
+        avatarImage.setFitWidth(ICON_SIZE);
+        avatarImage.setFitHeight(ICON_SIZE);
+        avatarImage.setPreserveRatio(true);
+        avatarImage.setSmooth(true);
+        avatarImage.setClip(new Circle(ICON_SIZE / 2, ICON_SIZE / 2, ICON_SIZE / 2));
+
+        StackPane avatarFrame = new StackPane(avatarImage);
+        avatarFrame.setMinSize(ICON_SIZE, ICON_SIZE);
+        avatarFrame.setPrefSize(ICON_SIZE, ICON_SIZE);
+        avatarFrame.setMaxSize(ICON_SIZE, ICON_SIZE);
+        avatarFrame.getStyleClass().add("user-avatar-frame");
+        return avatarFrame;
     }
 
     /**
