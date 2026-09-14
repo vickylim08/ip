@@ -1,116 +1,220 @@
 package luna.ui;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 /**
- * Represents one chat message in the JavaFX conversation view.
+ * Represents one message in the JavaFX conversation view.
+ *
+ * <p>User commands appear as compact chat bubbles, while Luna responses use branded cards.</p>
  */
 public class DialogBox extends HBox {
-    private static final String USER_BUBBLE_STYLE = """
-            -fx-background-color: #d9fdd3;
-            -fx-background-radius: 16;
-            -fx-padding: 10 14 10 14;
-            -fx-font-size: 13px;
-            """;
-    private static final String LUNA_BUBBLE_STYLE = """
-            -fx-background-color: #f3f4f6;
-            -fx-background-radius: 16;
-            -fx-padding: 10 14 10 14;
-            -fx-font-size: 13px;
-            """;
-    private static final String WELCOME_BUBBLE_STYLE = LUNA_BUBBLE_STYLE + """
-            -fx-font-family: "Monospaced";
-            """;
-    private static final String USER_TAG_STYLE = """
-            -fx-background-color: #2563eb;
-            -fx-background-radius: 999;
-            -fx-padding: 6 10 6 10;
-            -fx-text-fill: white;
-            -fx-font-weight: bold;
-            """;
-    private static final String LUNA_TAG_STYLE = """
-            -fx-background-color: #111827;
-            -fx-background-radius: 999;
-            -fx-padding: 6 10 6 10;
-            -fx-text-fill: white;
-            -fx-font-weight: bold;
-            """;
+    private static final double USER_MESSAGE_MAX_WIDTH = 340.0;
+    private static final double ICON_SIZE = 28.0;
+    private static final String MOON_ICON = "\u263E";
+    private static final String USER_AVATAR_PATH = "/images/user-avatar.png";
+    private static final Image USER_AVATAR = new Image(
+            DialogBox.class.getResourceAsStream(USER_AVATAR_PATH));
 
-    private final Label text;
-    private final Label speakerTag;
-
-    /**
-     * Creates a dialog box with a message bubble and speaker tag.
-     *
-     * @param message Message text to display.
-     * @param speaker Speaker label shown beside the bubble.
-     * @param bubbleStyle Inline CSS applied to the message bubble.
-     * @param speakerStyle Inline CSS applied to the speaker tag.
-     */
-    private DialogBox(String message, String speaker, String bubbleStyle, String speakerStyle) {
-        this.text = new Label(message);
-        this.speakerTag = new Label(speaker);
-
-        text.setWrapText(true);
-        text.setMaxWidth(280);
-        text.setStyle(bubbleStyle);
-
-        speakerTag.setStyle(speakerStyle);
-        speakerTag.setMinWidth(Label.USE_PREF_SIZE);
-
-        setAlignment(Pos.TOP_RIGHT);
-        setSpacing(10);
-        setPadding(new Insets(2, 4, 2, 4));
-        getChildren().addAll(text, speakerTag);
+    private DialogBox() {
+        setMaxWidth(Double.MAX_VALUE);
+        setSnapToPixel(true);
+        getStyleClass().add("dialog-row");
     }
 
     /**
-     * Returns a dialog box representing user input.
+     * Returns a rounded, right-aligned bubble representing user input.
      *
      * @param message User message text.
      * @return Dialog box aligned for the user.
      */
     public static DialogBox getUserDialog(String message) {
-        return new DialogBox(message, "You", USER_BUBBLE_STYLE, USER_TAG_STYLE);
+        DialogBox dialogBox = new DialogBox();
+        Label messageLabel = createWrappingLabel(message, "user-message");
+        StackPane avatar = createUserAvatar();
+
+        messageLabel.setId("user-message");
+        messageLabel.setMaxWidth(USER_MESSAGE_MAX_WIDTH);
+        dialogBox.setAlignment(Pos.TOP_RIGHT);
+        dialogBox.setSpacing(8);
+        dialogBox.getChildren().addAll(messageLabel, avatar);
+        return dialogBox;
     }
 
     /**
-     * Returns a dialog box representing Luna's response.
+     * Creates the small circular profile picture shown beside user input.
+     *
+     * @return Circular avatar containing the bundled user image.
+     */
+    private static StackPane createUserAvatar() {
+        ImageView avatarImage = new ImageView(USER_AVATAR);
+        avatarImage.setFitWidth(ICON_SIZE);
+        avatarImage.setFitHeight(ICON_SIZE);
+        avatarImage.setPreserveRatio(true);
+        avatarImage.setSmooth(true);
+        avatarImage.setClip(new Circle(ICON_SIZE / 2, ICON_SIZE / 2, ICON_SIZE / 2));
+
+        StackPane avatarFrame = new StackPane(avatarImage);
+        avatarFrame.setMinSize(ICON_SIZE, ICON_SIZE);
+        avatarFrame.setPrefSize(ICON_SIZE, ICON_SIZE);
+        avatarFrame.setMaxSize(ICON_SIZE, ICON_SIZE);
+        avatarFrame.getStyleClass().add("user-avatar-frame");
+        return avatarFrame;
+    }
+
+    /**
+     * Returns a blue-accented card representing Luna's output.
      *
      * @param message Luna response text.
      * @return Dialog box aligned for Luna.
      */
     public static DialogBox getLunaDialog(String message) {
-        DialogBox dialogBox = new DialogBox(message, "Luna", LUNA_BUBBLE_STYLE, LUNA_TAG_STYLE);
-        dialogBox.flip();
-        return dialogBox;
+        return createLunaDialog(message, "Luna", "normal-card", "moon-icon", MOON_ICON, false);
     }
 
     /**
-     * Returns a monospaced dialog box for Luna's ASCII-art welcome message.
+     * Returns a softly highlighted card representing an error from Luna.
      *
-     * @param message Welcome message containing the ASCII-art banner.
-     * @return Monospaced dialog box aligned for Luna.
+     * @param message Error message text.
+     * @return Dialog box styled to draw attention to the error.
+     */
+    public static DialogBox getErrorDialog(String message) {
+        return createLunaDialog(message, "Check your command", "error-card", "error-icon", "!", false);
+    }
+
+    /**
+     * Returns a formatted help card for Luna's welcome message.
+     *
+     * @param message Welcome text and command descriptions.
+     * @return Formatted help card aligned for Luna.
      */
     public static DialogBox getWelcomeDialog(String message) {
-        DialogBox dialogBox = new DialogBox(message, "Luna", WELCOME_BUBBLE_STYLE, LUNA_TAG_STYLE);
-        dialogBox.flip();
+        return createLunaDialog(message, "Luna", "welcome-card", "moon-icon", MOON_ICON, true);
+    }
+
+    /**
+     * Builds a Luna response with its icon, header, card, and formatted content.
+     *
+     * @param message Response text.
+     * @param header Card header.
+     * @param cardStyleClass Specialized card style class.
+     * @param iconStyleClass Specialized icon style class.
+     * @param iconText Character displayed in the icon.
+     * @param isHelpPanel Whether command descriptions should use the help layout.
+     * @return Dialog box containing the response card.
+     */
+    private static DialogBox createLunaDialog(String message, String header, String cardStyleClass,
+            String iconStyleClass, String iconText, boolean isHelpPanel) {
+        DialogBox dialogBox = new DialogBox();
+        Label iconLabel = new Label(iconText);
+        VBox responseCard = new VBox(6);
+        Label headerLabel = new Label(header);
+        Node content = isHelpPanel ? createHelpContent(message) : createMessageContent(message);
+
+        iconLabel.setMinSize(ICON_SIZE, ICON_SIZE);
+        iconLabel.setPrefSize(ICON_SIZE, ICON_SIZE);
+        iconLabel.setAlignment(Pos.CENTER);
+        iconLabel.getStyleClass().addAll("response-icon", iconStyleClass);
+
+        responseCard.setId("luna-response");
+        responseCard.setMaxWidth(Double.MAX_VALUE);
+        responseCard.setSnapToPixel(true);
+        responseCard.getStyleClass().addAll("luna-card", cardStyleClass);
+        HBox.setHgrow(responseCard, Priority.ALWAYS);
+
+        headerLabel.setId("luna-header");
+        headerLabel.getStyleClass().add("luna-card-header");
+        if (cardStyleClass.equals("error-card")) {
+            headerLabel.getStyleClass().add("error-card-header");
+        }
+
+        responseCard.getChildren().addAll(headerLabel, content);
+        dialogBox.setAlignment(Pos.TOP_LEFT);
+        dialogBox.setSpacing(8);
+        dialogBox.getChildren().addAll(iconLabel, responseCard);
         return dialogBox;
     }
 
     /**
-     * Flips the dialog box so the speaker tag appears on the left.
+     * Formats an ordinary response without changing Luna's task notation.
+     *
+     * @param message Response text.
+     * @return Wrapping label containing the original response.
      */
-    private void flip() {
-        setAlignment(Pos.TOP_LEFT);
-        ObservableList<Node> children = FXCollections.observableArrayList(getChildren());
-        FXCollections.reverse(children);
-        getChildren().setAll(children);
+    private static Node createMessageContent(String message) {
+        Label messageLabel = createWrappingLabel(message, "luna-message");
+        messageLabel.setMaxWidth(Double.MAX_VALUE);
+        return messageLabel;
+    }
+
+    /**
+     * Formats the welcome text as a title, description, and individual command rows.
+     *
+     * @param message Welcome text containing command descriptions.
+     * @return Structured help content.
+     */
+    private static Node createHelpContent(String message) {
+        VBox helpContent = new VBox(7);
+        String[] lines = message.split("\\R");
+
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            if (i == 0) {
+                helpContent.getChildren().add(createWrappingLabel(line, "help-title"));
+            } else if (i == 1) {
+                helpContent.getChildren().add(createWrappingLabel(line, "help-subtitle"));
+            } else if (line.equals("Available commands:")) {
+                helpContent.getChildren().add(createWrappingLabel(line, "help-section-title"));
+            } else if (line.startsWith("> ")) {
+                helpContent.getChildren().add(createCommandRow(line));
+            }
+        }
+        return helpContent;
+    }
+
+    /**
+     * Creates a wrapping help row with distinct command and description text.
+     *
+     * @param commandLine Command line in {@code > command: description} form.
+     * @return Formatted command row.
+     */
+    private static Node createCommandRow(String commandLine) {
+        int separatorIndex = commandLine.indexOf(':');
+        String command = separatorIndex < 0 ? commandLine.substring(2) : commandLine.substring(2, separatorIndex);
+        String description = separatorIndex < 0 ? "" : commandLine.substring(separatorIndex + 1).trim();
+
+        Text commandText = new Text(command + "  ");
+        commandText.getStyleClass().add("command-name");
+        Text descriptionText = new Text(description);
+        descriptionText.getStyleClass().add("command-description");
+
+        TextFlow commandRow = new TextFlow(commandText, descriptionText);
+        commandRow.setLineSpacing(2);
+        commandRow.getStyleClass().add("command-row");
+        return commandRow;
+    }
+
+    /**
+     * Creates a wrapping label with the requested style class.
+     *
+     * @param message Text to display.
+     * @param styleClass CSS style class applied to the label.
+     * @return Configured label.
+     */
+    private static Label createWrappingLabel(String message, String styleClass) {
+        Label messageLabel = new Label(message);
+        messageLabel.setWrapText(true);
+        messageLabel.getStyleClass().add(styleClass);
+        return messageLabel;
     }
 }
