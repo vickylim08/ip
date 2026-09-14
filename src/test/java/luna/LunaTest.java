@@ -26,7 +26,7 @@ public class LunaTest {
 
         String welcomeMessage = luna.getWelcomeMessage();
 
-        assertTrue(welcomeMessage.startsWith("Luna\nYour personal task companion."));
+        assertTrue(welcomeMessage.startsWith("Plan your night\nYour calm night-shift task companion."));
         assertTrue(welcomeMessage.contains("Available commands:"));
         assertTrue(welcomeMessage.contains("> event <desc> /from <yyyy-MM-dd HHmm> "
                 + "/to <yyyy-MM-dd HHmm>: Adds a task that spans across a specific time"));
@@ -41,7 +41,7 @@ public class LunaTest {
 
         String response = luna.getResponse("todo read book");
 
-        assertTrue(response.contains("I've added this task"));
+        assertTrue(response.contains("It's on your radar"));
         assertTrue(response.contains("[T][ ] read book"));
         assertFalse(response.contains("___"));
         assertFalse(luna.isLatestResponseError());
@@ -54,7 +54,7 @@ public class LunaTest {
 
         String response = luna.getResponse("unknown");
 
-        assertTrue(response.contains("Oh no! I don't know this command :("));
+        assertTrue(response.contains("I lost that signal. I don't know this command :("));
         assertTrue(luna.isLatestResponseError());
     }
 
@@ -64,7 +64,7 @@ public class LunaTest {
 
         String response = luna.getResponse("bye");
 
-        assertTrue(response.contains("Bye. Hope to see you again soon!"));
+        assertTrue(response.contains("The moon is setting. Rest well - I'll keep your tasks safe."));
         assertTrue(luna.isExitRequested());
     }
 
@@ -87,8 +87,8 @@ public class LunaTest {
 
         String response = luna.getResponse("archive 1");
 
-        assertEquals("Archived 1 task to data/archive.txt.\n"
-                + "Now you have 1 task in the list.", response);
+        assertEquals("Tucked away 1 task to data/archive.txt.\n"
+                + "You have 1 task still on your radar.", response);
         assertEquals(List.of("T | 0 | read book"), storage.getArchivedTasks());
         assertEquals(List.of("T | 0 | submit quiz"), storage.getSavedTasks());
     }
@@ -102,8 +102,8 @@ public class LunaTest {
 
         String response = luna.getResponse("  ARCHIVE   ALL  ");
 
-        assertEquals("Archived 2 tasks to data/archive.txt.\n"
-                + "Now you have 0 tasks in the list.", response);
+        assertEquals("Tucked away 2 tasks to data/archive.txt.\n"
+                + "You have 0 tasks still on your radar.", response);
         assertEquals(List.of("T | 0 | read book", "T | 0 | submit quiz"), storage.getArchivedTasks());
         assertTrue(storage.getSavedTasks().isEmpty());
     }
@@ -115,7 +115,7 @@ public class LunaTest {
 
         String response = luna.getResponse("archive all");
 
-        assertEquals("There are no tasks to archive.", response);
+        assertEquals("Your active list is already clear - there is nothing to archive.", response);
         assertTrue(storage.getArchivedTasks().isEmpty());
     }
 
@@ -127,7 +127,7 @@ public class LunaTest {
 
         String response = luna.getResponse("list archived");
 
-        assertEquals("Here are your archived tasks:\n1. [T][ ] read book", response);
+        assertEquals("These tasks are resting in your archive:\n1. [T][ ] read book", response);
     }
 
     @Test
@@ -137,7 +137,7 @@ public class LunaTest {
 
         String response = luna.getResponse("archive book");
 
-        assertEquals("Oh no! Please use archive <index> or archive all.", response);
+        assertEquals("I lost that signal. Please use archive <index> or archive all.", response);
         assertTrue(storage.getArchivedTasks().isEmpty());
     }
 

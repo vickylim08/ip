@@ -99,7 +99,7 @@ public class DialogBox extends HBox {
      * @return Formatted help card aligned for Luna.
      */
     public static DialogBox getWelcomeDialog(String message) {
-        return createLunaDialog(message, "Luna", "welcome-card", "moon-icon", MOON_ICON, true);
+        return createLunaDialog(message, "Quick start", "welcome-card", "moon-icon", MOON_ICON, true);
     }
 
     /**
