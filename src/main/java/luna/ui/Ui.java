@@ -75,7 +75,7 @@ public class Ui {
                     + AVAILABLE_COMMANDS + '\n';
         }
 
-        return WELCOME_TEXT + "\n\n" + AVAILABLE_COMMANDS;
+        return "Luna\nYour personal task companion.\n\n" + AVAILABLE_COMMANDS;
     }
 
     /**

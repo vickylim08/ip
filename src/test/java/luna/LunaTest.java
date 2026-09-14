@@ -21,21 +21,17 @@ import luna.ui.Ui;
  */
 public class LunaTest {
     @Test
-    public void getWelcomeMessage_newLuna_returnsGreetingAndCommandList() {
+    public void getWelcomeMessage_guiMode_returnsHeaderAndCommandDescriptions() {
         Luna luna = new Luna(new Ui(false), new InMemoryStorage());
 
         String welcomeMessage = luna.getWelcomeMessage();
 
-        assertTrue(welcomeMessage.startsWith(" _\n"
-                + "| |    _   _ _ __   __ _\n"
-                + "| |   | | | | '_ \\ / _` |\n"
-                + "| |___| |_| | | | | (_| |\n"
-                + "|_____|\\__,_|_| |_|\\__,_|\n\n"
-                + "Hi, I'm Luna."));
+        assertTrue(welcomeMessage.startsWith("Luna\nYour personal task companion."));
         assertTrue(welcomeMessage.contains("Available commands:"));
         assertTrue(welcomeMessage.contains("> event <desc> /from <yyyy-MM-dd HHmm> "
                 + "/to <yyyy-MM-dd HHmm>: Adds a task that spans across a specific time"));
         assertFalse(welcomeMessage.contains("_______________________________________________________________"));
+        assertFalse(welcomeMessage.contains("|_____|"));
     }
 
     @Test
