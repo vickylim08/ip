@@ -14,6 +14,7 @@ import luna.command.DeleteCommand;
 import luna.command.EventCommand;
 import luna.command.ExitCommand;
 import luna.command.FindCommand;
+import luna.command.HelpCommand;
 import luna.command.ListArchivedCommand;
 import luna.command.ListCommand;
 import luna.command.MarkCommand;
@@ -99,6 +100,20 @@ public class ParserTest {
         Command command = Parser.parse("find book");
 
         assertInstanceOf(FindCommand.class, command);
+    }
+
+    @Test
+    public void parse_helpCommand_returnsHelpCommand() throws LunaException {
+        Command command = Parser.parse("help");
+
+        assertInstanceOf(HelpCommand.class, command);
+    }
+
+    @Test
+    public void parse_helpWithUnexpectedArgument_throwsLunaException() {
+        LunaException exception = assertThrows(LunaException.class, () -> Parser.parse("help commands"));
+
+        assertEquals("Please use help without additional parameters.", exception.getMessage());
     }
 
     @Test

@@ -1,6 +1,7 @@
 package luna.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -97,5 +98,17 @@ public class UiTest {
 
         assertEquals("Your active list is already clear - there is nothing to archive.",
                 ui.consumeLatestResponse());
+    }
+
+    @Test
+    public void showHelp_formatsCompleteCommandReference() {
+        Ui ui = new Ui(false);
+
+        ui.showHelp();
+
+        String response = ui.consumeLatestResponse();
+        assertTrue(response.startsWith("Available commands:"));
+        assertTrue(response.contains("> deadline <desc> /by <yyyy-MM-dd>:"));
+        assertTrue(response.contains("> help: Displays this command guide."));
     }
 }

@@ -17,8 +17,11 @@ public class Ui {
             + "| |___| |_| | | | | (_| |\n"
             + "|_____|\\__,_|_| |_|\\__,_|";
     private static final String WELCOME_TEXT = BANNER_TEXT
-            + "\n\nHi, I'm Luna.\nLet's bring your tasks into focus.";
-    private static final String GUI_TAGLINE = "Your calm night-shift task companion.";
+            + "\n\nHi, I'm Luna.\nI keep your tasks organized after dark."
+            + "\nType help to view all commands.";
+    private static final String GUI_WELCOME_TEXT = "Plan your night\n"
+            + "Add tasks, track deadlines, and keep completed work out of the way.\n\n"
+            + "Type help to view all commands.";
     private static final String AVAILABLE_COMMANDS = "Available commands:\n"
             + "> todo <desc>: Adds a todo task with the given description\n"
             + "> deadline <desc> /by <yyyy-MM-dd>: Adds a deadline task with the given due date\n"
@@ -32,6 +35,7 @@ public class Ui {
             + "> delete <index>: Removes the task at the specified index number from the list.\n"
             + "> archive <index>: Moves the task at the specified index into the archive.\n"
             + "> archive all: Moves every task into the archive.\n"
+            + "> help: Displays this command guide.\n"
             + "> bye: Exits the program";
     private static final String EXIT_TEXT = "The moon is setting. Rest well - I'll keep your tasks safe.";
     private final Scanner scanner;
@@ -57,14 +61,14 @@ public class Ui {
     }
 
     /**
-     * Shows the welcome banner and available command list.
+     * Shows a brief welcome message.
      */
     public void showWelcome() {
         showMessage(getWelcomeMessage());
     }
 
     /**
-     * Returns the welcome banner and available command list as one string.
+     * Returns the compact welcome text shown when Luna starts.
      *
      * @return Welcome message shown when Luna starts.
      */
@@ -72,11 +76,17 @@ public class Ui {
         if (shouldPrintToConsole) {
             return DIVIDER_LINE + '\n'
                     + "   " + WELCOME_TEXT.replace("\n", "\n   ") + '\n'
-                    + DIVIDER_LINE + '\n'
-                    + AVAILABLE_COMMANDS + '\n';
+                    + DIVIDER_LINE + '\n';
         }
 
-        return "Plan your night\n" + GUI_TAGLINE + "\n\n" + AVAILABLE_COMMANDS;
+        return GUI_WELCOME_TEXT;
+    }
+
+    /**
+     * Shows the complete command reference.
+     */
+    public void showHelp() {
+        showMessage(formatResponse(AVAILABLE_COMMANDS));
     }
 
     /**

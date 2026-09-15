@@ -215,6 +215,9 @@ public class Main extends Application {
         if (luna.isLatestResponseError()) {
             return DialogBox.getErrorDialog(response);
         }
+        if (luna.isLatestResponseHelp()) {
+            return DialogBox.getHelpDialog(response);
+        }
 
         return DialogBox.getLunaDialog(response);
     }

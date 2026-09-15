@@ -10,6 +10,7 @@ import luna.command.DeleteCommand;
 import luna.command.EventCommand;
 import luna.command.ExitCommand;
 import luna.command.FindCommand;
+import luna.command.HelpCommand;
 import luna.command.ListArchivedCommand;
 import luna.command.ListCommand;
 import luna.command.MarkCommand;
@@ -55,6 +56,9 @@ public class Parser {
                 return new DeleteCommand(trimmedInput);
             case "find":
                 return new FindCommand(trimmedInput);
+            case "help":
+                requireNoArguments(trimmedInput, "help");
+                return new HelpCommand();
             case "archive":
                 return new ArchiveCommand(trimmedInput);
             default:

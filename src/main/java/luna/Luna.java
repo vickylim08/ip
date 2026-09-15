@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import luna.command.Command;
+import luna.command.HelpCommand;
 import luna.parser.Parser;
 import luna.storage.Storage;
 import luna.task.Task;
@@ -19,6 +20,7 @@ public class Luna {
     private final TaskList tasks;
     private boolean isExitRequested;
     private boolean isLatestResponseError;
+    private boolean isLatestResponseHelp;
     private boolean isStorageReady;
 
     /**
@@ -38,6 +40,7 @@ public class Luna {
         this.ui = ui;
         this.storage = storage;
         this.isLatestResponseError = false;
+        this.isLatestResponseHelp = false;
         this.isStorageReady = false;
         this.tasks = loadTasks();
         this.isExitRequested = false;
@@ -78,6 +81,7 @@ public class Luna {
     public String getResponse(String input) {
         String trimmedInput = input == null ? "" : input.trim();
         isLatestResponseError = false;
+        isLatestResponseHelp = false;
         if (trimmedInput.isEmpty()) {
             return "";
         }
@@ -89,6 +93,7 @@ public class Luna {
                         + "Fix or restore the file, then restart Luna so your data is not overwritten.");
             }
             command.execute(tasks, ui, storage);
+            isLatestResponseHelp = command instanceof HelpCommand;
             isExitRequested = command.isExit();
         } catch (LunaException e) {
             isLatestResponseError = true;
@@ -123,6 +128,15 @@ public class Luna {
      */
     public boolean isLatestResponseError() {
         return isLatestResponseError;
+    }
+
+    /**
+     * Returns whether the most recent response contains the command reference.
+     *
+     * @return {@code true} if the latest response should use the help presentation.
+     */
+    public boolean isLatestResponseHelp() {
+        return isLatestResponseHelp;
     }
 
     /**

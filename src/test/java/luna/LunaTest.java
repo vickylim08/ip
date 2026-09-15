@@ -22,17 +22,29 @@ import luna.ui.Ui;
  */
 public class LunaTest {
     @Test
-    public void getWelcomeMessage_guiMode_returnsHeaderAndCommandDescriptions() {
+    public void getWelcomeMessage_guiMode_returnsBriefIntroduction() {
         Luna luna = new Luna(new Ui(false), new InMemoryStorage());
 
         String welcomeMessage = luna.getWelcomeMessage();
 
-        assertTrue(welcomeMessage.startsWith("Plan your night\nYour calm night-shift task companion."));
-        assertTrue(welcomeMessage.contains("Available commands:"));
-        assertTrue(welcomeMessage.contains("> event <desc> /from <yyyy-MM-dd HHmm> "
-                + "/to <yyyy-MM-dd HHmm>: Adds a task that spans across a specific time"));
+        assertTrue(welcomeMessage.startsWith("Plan your night\nAdd tasks, track deadlines"));
+        assertTrue(welcomeMessage.contains("Type help to view all commands."));
+        assertFalse(welcomeMessage.contains("Available commands:"));
         assertFalse(welcomeMessage.contains("_______________________________________________________________"));
         assertFalse(welcomeMessage.contains("|_____|"));
+    }
+
+    @Test
+    public void getResponse_helpCommand_returnsCommandReference() {
+        Luna luna = new Luna(new Ui(false), new InMemoryStorage());
+
+        String response = luna.getResponse("help");
+
+        assertTrue(response.startsWith("Available commands:"));
+        assertTrue(response.contains("> todo <desc>:"));
+        assertTrue(response.contains("> help: Displays this command guide."));
+        assertTrue(luna.isLatestResponseHelp());
+        assertFalse(luna.isLatestResponseError());
     }
 
     @Test

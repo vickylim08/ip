@@ -93,13 +93,23 @@ public class DialogBox extends HBox {
     }
 
     /**
-     * Returns a formatted help card for Luna's welcome message.
+     * Returns a compact card for Luna's welcome message.
      *
      * @param message Welcome text and command descriptions.
      * @return Formatted help card aligned for Luna.
      */
     public static DialogBox getWelcomeDialog(String message) {
-        return createLunaDialog(message, "Quick start", "welcome-card", "moon-icon", MOON_ICON, true);
+        return createLunaDialog(message, "Quick start", "welcome-card", "moon-icon", MOON_ICON, false);
+    }
+
+    /**
+     * Returns a structured card containing Luna's command reference.
+     *
+     * @param message Command reference text.
+     * @return Formatted help card aligned for Luna.
+     */
+    public static DialogBox getHelpDialog(String message) {
+        return createLunaDialog(message, "Command guide", "welcome-card", "moon-icon", MOON_ICON, true);
     }
 
     /**
@@ -158,23 +168,18 @@ public class DialogBox extends HBox {
     }
 
     /**
-     * Formats the welcome text as a title, description, and individual command rows.
+     * Formats the command reference as a heading and individual command rows.
      *
-     * @param message Welcome text containing command descriptions.
+     * @param message Help text containing command descriptions.
      * @return Structured help content.
      */
     private static Node createHelpContent(String message) {
         VBox helpContent = new VBox(7);
         String[] lines = message.split("\\R");
 
-        for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-            if (i == 0) {
+        for (String line : lines) {
+            if (line.equals("Available commands:")) {
                 helpContent.getChildren().add(createWrappingLabel(line, "help-title"));
-            } else if (i == 1) {
-                helpContent.getChildren().add(createWrappingLabel(line, "help-subtitle"));
-            } else if (line.equals("Available commands:")) {
-                helpContent.getChildren().add(createWrappingLabel(line, "help-section-title"));
             } else if (line.startsWith("> ")) {
                 helpContent.getChildren().add(createCommandRow(line));
             }
