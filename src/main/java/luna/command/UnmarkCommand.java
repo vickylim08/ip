@@ -31,13 +31,28 @@ public class UnmarkCommand extends Command {
      */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
-        if (input.equalsIgnoreCase("unmark")) {
-            throw new LunaException("Please provide a task number to mark as not done.");
+        int index = parseTaskIndex(input, "unmark", tasks.size(), "unmark");
+        Task task = tasks.get(index);
+        boolean wasDone = task.isDone();
+        task.markAsNotDone();
+        try {
+            saveTasks(storage, tasks);
+        } catch (LunaException e) {
+            if (wasDone) {
+                task.markAsDone();
+            }
+            throw e;
         }
-
-        int index = Integer.parseInt(input.substring(7).trim()) - 1;
-        Task task = tasks.unmark(index);
-        saveTasks(storage, tasks);
         ui.showUnmarkSuccess(task);
+    }
+
+    /**
+     * Returns whether this command changes persisted task data.
+     *
+     * @return Always {@code true} for an unmark command.
+     */
+    @Override
+    public boolean isMutating() {
+        return true;
     }
 }

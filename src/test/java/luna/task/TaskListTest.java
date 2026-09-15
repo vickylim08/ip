@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -111,5 +112,29 @@ public class TaskListTest {
         List<Task> matchingTasks = taskList.findTasks("meeting");
 
         assertTrue(matchingTasks.isEmpty());
+    }
+
+    @Test
+    public void containsTaskWithSameDetails_caseAndStatusDiffer_returnsTrue() {
+        Todo existingTask = new Todo("Read Book");
+        existingTask.markAsDone();
+        TaskList taskList = new TaskList(existingTask);
+
+        boolean containsDuplicate = taskList.containsTaskWithSameDetails(new Todo("read   book"));
+
+        assertTrue(containsDuplicate);
+    }
+
+    @Test
+    public void containsTaskWithSameDetails_eventTimeDiffers_returnsFalse() {
+        Event existingEvent = new Event("meeting",
+                LocalDateTime.of(2026, 9, 15, 10, 0),
+                LocalDateTime.of(2026, 9, 15, 11, 0));
+        Event laterEvent = new Event("meeting",
+                LocalDateTime.of(2026, 9, 15, 11, 0),
+                LocalDateTime.of(2026, 9, 15, 12, 0));
+        TaskList taskList = new TaskList(existingEvent);
+
+        assertFalse(taskList.containsTaskWithSameDetails(laterEvent));
     }
 }

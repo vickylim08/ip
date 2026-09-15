@@ -70,16 +70,11 @@ public class ArchiveCommand extends Command {
      * Archives the active task identified by a one-based index.
      */
     private void archiveOne(String argument, TaskList tasks, Ui ui, Storage storage) throws LunaException {
-        if (!argument.matches("[0-9]+")) {
+        if (!argument.matches("[1-9][0-9]*")) {
             throw new LunaException(USAGE_MESSAGE);
         }
 
-        int index;
-        try {
-            index = Integer.parseInt(argument) - 1;
-        } catch (NumberFormatException e) {
-            throw new LunaException(USAGE_MESSAGE);
-        }
+        int index = parseTaskIndex("archive " + argument, "archive", tasks.size(), "archive");
 
         Task task = tasks.get(index);
         List<Task> remainingTasks = new ArrayList<>(tasks.asList());
@@ -97,15 +92,25 @@ public class ArchiveCommand extends Command {
             throws LunaException {
         try {
             storage.archiveTasks(tasksToArchive);
-        } catch (IOException e) {
+        } catch (IOException | LunaException | SecurityException e) {
             throw new LunaException("I could not archive your tasks to disk.");
         }
 
         try {
             storage.saveTasks(remainingTasks);
-        } catch (IOException e) {
+        } catch (IOException | SecurityException e) {
             throw new LunaException("Archiving was saved, but I could not update your active task file. "
                     + "Your active list was left unchanged.");
         }
+    }
+
+    /**
+     * Returns whether this command changes persisted task data.
+     *
+     * @return Always {@code true} for an archive command.
+     */
+    @Override
+    public boolean isMutating() {
+        return true;
     }
 }

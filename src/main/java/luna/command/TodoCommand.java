@@ -42,8 +42,16 @@ public class TodoCommand extends Command {
         }
 
         Task task = new Todo(description);
-        tasks.add(task);
-        saveTasks(storage, tasks);
-        ui.showAddSuccess(task, tasks.size());
+        addTask(task, tasks, ui, storage);
+    }
+
+    /**
+     * Returns whether this command changes persisted task data.
+     *
+     * @return Always {@code true} for a todo command.
+     */
+    @Override
+    public boolean isMutating() {
+        return true;
     }
 }

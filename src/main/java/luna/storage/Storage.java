@@ -1,9 +1,10 @@
 package luna.storage;
 
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -63,7 +64,7 @@ public class Storage {
      * @throws LunaException If the saved file format is invalid.
      */
     public List<Task> loadTasks() throws IOException, LunaException {
-        return loadTasksFrom(filePath);
+        return loadTasksFrom(filePath, true);
     }
 
     /**
@@ -74,16 +75,17 @@ public class Storage {
      * @throws LunaException If the archived file format is invalid.
      */
     public List<Task> loadArchivedTasks() throws IOException, LunaException {
-        return loadTasksFrom(archiveFilePath);
+        return loadTasksFrom(archiveFilePath, false);
     }
 
     /**
      * Appends tasks to the archive without replacing earlier archive entries.
      *
      * @param tasks Tasks to append to the archive.
-     * @throws IOException If writing the archive file fails.
+     * @throws IOException If reading or writing the archive file fails.
+     * @throws LunaException If the existing archive content is malformed.
      */
-    public void archiveTasks(List<Task> tasks) throws IOException {
+    public void archiveTasks(List<Task> tasks) throws IOException, LunaException {
         assert tasks != null : "Archived tasks must be provided as a non-null collection";
         assert tasks.stream().allMatch(task -> task != null)
                 : "The archive must not contain null tasks";
@@ -92,27 +94,52 @@ public class Storage {
             return;
         }
 
-        Files.createDirectories(archiveFilePath.getParent());
-        List<String> lines = tasks.stream()
+        List<String> lines = new ArrayList<>();
+        if (Files.exists(archiveFilePath)) {
+            List<String> existingLines = Files.readAllLines(archiveFilePath);
+            validateStorageLines(existingLines, false);
+            lines.addAll(existingLines);
+        }
+        lines.addAll(tasks.stream()
                 .map(Task::toStorageString)
-                .toList();
-        Files.write(archiveFilePath, lines, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                .toList());
+        writeLinesAtomically(archiveFilePath, lines);
     }
 
     /**
      * Loads task records from the given file.
      */
-    private List<Task> loadTasksFrom(Path sourcePath) throws IOException, LunaException {
+    private List<Task> loadTasksFrom(Path sourcePath, boolean shouldRejectDuplicates)
+            throws IOException, LunaException {
         if (!Files.exists(sourcePath)) {
             return new ArrayList<>();
         }
 
         List<String> lines = Files.readAllLines(sourcePath);
+        return validateStorageLines(lines, shouldRejectDuplicates);
+    }
+
+    /**
+     * Validates and converts storage lines into tasks.
+     */
+    private List<Task> validateStorageLines(List<String> lines, boolean shouldRejectDuplicates)
+            throws LunaException {
         List<Task> tasks = new ArrayList<>();
 
-        for (String line : lines) {
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
             if (!line.isBlank()) {
-                tasks.add(parseTask(line));
+                Task task;
+                try {
+                    task = parseTask(line);
+                } catch (LunaException e) {
+                    throw new LunaException("Saved data is invalid at line " + (i + 1) + ": " + e.getMessage());
+                }
+
+                if (shouldRejectDuplicates && tasks.stream().anyMatch(existing -> existing.hasSameDetails(task))) {
+                    throw new LunaException("Saved data contains a duplicate task at line " + (i + 1) + ".");
+                }
+                tasks.add(task);
             }
         }
 
@@ -126,13 +153,12 @@ public class Storage {
      * @throws IOException If writing the file fails.
      */
     public void saveTasks(TaskList tasks) throws IOException {
-        Files.createDirectories(filePath.getParent());
         List<String> lines = tasks.asList().stream()
                 .map(Task::toStorageString)
                 .toList();
 
         assert lines.size() == tasks.size() : "Every task must produce exactly one storage line";
-        Files.write(filePath, lines);
+        writeLinesAtomically(filePath, lines);
     }
 
     /**
@@ -184,8 +210,8 @@ public class Storage {
                 default:
                     throw new LunaException("Saved task type is invalid.");
             }
-        } catch (DateTimeParseException e) {
-            throw new LunaException("Saved date or time is invalid.");
+        } catch (DateTimeParseException | IllegalArgumentException e) {
+            throw new LunaException("Saved task details are invalid.");
         }
     }
 
@@ -232,5 +258,31 @@ public class Storage {
     private String joinDescription(String[] parts, int trailingFieldCount) {
         int descriptionEnd = parts.length - trailingFieldCount;
         return String.join(FIELD_SEPARATOR, Arrays.copyOfRange(parts, 2, descriptionEnd));
+    }
+
+    /**
+     * Replaces a storage file only after its complete new content has been written.
+     */
+    private void writeLinesAtomically(Path targetPath, List<String> lines) throws IOException {
+        Path absoluteTarget = targetPath.toAbsolutePath();
+        Path parentDirectory = absoluteTarget.getParent();
+        Files.createDirectories(parentDirectory);
+        String temporaryFilePrefix = absoluteTarget.getFileName().toString();
+        if (temporaryFilePrefix.length() < 3) {
+            temporaryFilePrefix = "luna-" + temporaryFilePrefix;
+        }
+        Path temporaryFile = Files.createTempFile(parentDirectory, temporaryFilePrefix, ".tmp");
+
+        try {
+            Files.write(temporaryFile, lines);
+            try {
+                Files.move(temporaryFile, absoluteTarget,
+                        StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(temporaryFile, absoluteTarget, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temporaryFile);
+        }
     }
 }

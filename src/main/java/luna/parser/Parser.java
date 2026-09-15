@@ -1,5 +1,7 @@
 package luna.parser;
 
+import java.util.Locale;
+
 import luna.LunaException;
 import luna.command.ArchiveCommand;
 import luna.command.Command;
@@ -23,32 +25,38 @@ public class Parser {
      *
      * @param input Full command entered by the user.
      * @return Parsed command object.
-     * @throws LunaException If the command word is invalid.
+     * @throws LunaException If the input is blank or the command format is invalid.
      */
     public static Command parse(String input) throws LunaException {
-        String commandWord = input.split(" ", 2)[0].toLowerCase();
+        if (input == null || input.isBlank()) {
+            throw new LunaException("Please enter a command.");
+        }
+
+        String trimmedInput = input.trim();
+        String commandWord = trimmedInput.split("\\s+", 2)[0].toLowerCase(Locale.ENGLISH);
 
         switch (commandWord) {
             case "list":
-                return parseListCommand(input);
+                return parseListCommand(trimmedInput);
             case "bye":
+                requireNoArguments(trimmedInput, "bye");
                 return new ExitCommand();
             case "mark":
-                return new MarkCommand(input);
+                return new MarkCommand(trimmedInput);
             case "unmark":
-                return new UnmarkCommand(input);
+                return new UnmarkCommand(trimmedInput);
             case "todo":
-                return new TodoCommand(input);
+                return new TodoCommand(trimmedInput);
             case "deadline":
-                return new DeadlineCommand(input);
+                return new DeadlineCommand(trimmedInput);
             case "event":
-                return new EventCommand(input);
+                return new EventCommand(trimmedInput);
             case "delete":
-                return new DeleteCommand(input);
+                return new DeleteCommand(trimmedInput);
             case "find":
-                return new FindCommand(input);
+                return new FindCommand(trimmedInput);
             case "archive":
-                return new ArchiveCommand(input);
+                return new ArchiveCommand(trimmedInput);
             default:
                 throw new LunaException("I don't know this command :(");
         }
@@ -71,5 +79,14 @@ public class Parser {
         }
 
         throw new LunaException("Please use list or list archived.");
+    }
+
+    /**
+     * Rejects unexpected text after a command that takes no arguments.
+     */
+    private static void requireNoArguments(String input, String commandWord) throws LunaException {
+        if (!input.equalsIgnoreCase(commandWord)) {
+            throw new LunaException("Please use " + commandWord + " without additional parameters.");
+        }
     }
 }

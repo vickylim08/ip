@@ -4,6 +4,8 @@ package luna.task;
  * Represents a generic task tracked by Luna.
  */
 public class Task {
+    private static final int MAX_DESCRIPTION_LENGTH = 500;
+
     private final String description;
     private boolean isDone;
 
@@ -13,8 +15,17 @@ public class Task {
      * @param description Description of the task.
      */
     public Task(String description) {
-        assert description != null : "A task must have a non-null description";
-        this.description = description;
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("A task description must not be blank.");
+        }
+        if (description.length() > MAX_DESCRIPTION_LENGTH) {
+            throw new IllegalArgumentException("A task description must be 500 characters or fewer.");
+        }
+        if (description.chars().anyMatch(character -> Character.isISOControl(character))) {
+            throw new IllegalArgumentException("A task description must not contain control characters.");
+        }
+
+        this.description = description.trim();
         this.isDone = false;
     }
 
@@ -59,6 +70,26 @@ public class Task {
      */
     public boolean isDone() {
         return isDone;
+    }
+
+    /**
+     * Returns whether another task has the same type and user-entered details.
+     * Completion status is deliberately ignored when detecting duplicates.
+     *
+     * @param other Task to compare with this task.
+     * @return {@code true} if both tasks represent the same task details.
+     */
+    public boolean hasSameDetails(Task other) {
+        return other != null
+                && getClass().equals(other.getClass())
+                && normalizeDescription(description).equalsIgnoreCase(normalizeDescription(other.description));
+    }
+
+    /**
+     * Normalizes insignificant spacing before task descriptions are compared.
+     */
+    private static String normalizeDescription(String value) {
+        return value.replaceAll("\\s+", " ");
     }
 
     /**

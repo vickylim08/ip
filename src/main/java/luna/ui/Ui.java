@@ -90,6 +90,9 @@ public class Ui {
         }
 
         System.out.print("> ");
+        if (!scanner.hasNextLine()) {
+            return "bye";
+        }
         return scanner.nextLine().trim();
     }
 
@@ -218,7 +221,8 @@ public class Ui {
      * Shows a loading error when the saved task file cannot be read.
      */
     public void showLoadingError() {
-        showError("I could not load your saved tasks. Starting with an empty list.");
+        showError("I could not load your saved tasks. You can still view this session, but changes are disabled "
+                + "to protect the existing file.");
     }
 
     /**

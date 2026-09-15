@@ -31,13 +31,28 @@ public class MarkCommand extends Command {
      */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
-        if (input.equalsIgnoreCase("mark")) {
-            throw new LunaException("Please provide a task number to mark as done.");
+        int index = parseTaskIndex(input, "mark", tasks.size(), "mark");
+        Task task = tasks.get(index);
+        boolean wasDone = task.isDone();
+        task.markAsDone();
+        try {
+            saveTasks(storage, tasks);
+        } catch (LunaException e) {
+            if (!wasDone) {
+                task.markAsNotDone();
+            }
+            throw e;
         }
-
-        int index = Integer.parseInt(input.substring(5).trim()) - 1;
-        Task task = tasks.mark(index);
-        saveTasks(storage, tasks);
         ui.showMarkSuccess(task);
+    }
+
+    /**
+     * Returns whether this command changes persisted task data.
+     *
+     * @return Always {@code true} for a mark command.
+     */
+    @Override
+    public boolean isMutating() {
+        return true;
     }
 }

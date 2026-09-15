@@ -26,7 +26,7 @@ public class ListArchivedCommand extends Command {
         try {
             List<Task> archivedTasks = storage.loadArchivedTasks();
             ui.showArchivedTasks(archivedTasks);
-        } catch (IOException | LunaException e) {
+        } catch (IOException | LunaException | SecurityException e) {
             throw new LunaException("I could not load your archived tasks.");
         }
     }

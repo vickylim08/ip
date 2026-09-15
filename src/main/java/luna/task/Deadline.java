@@ -3,6 +3,7 @@ package luna.task;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Represents a task that must be completed by a deadline.
@@ -20,7 +21,7 @@ public class Deadline extends Task {
      */
     public Deadline(String description, LocalDate byDate) {
         super(description);
-        this.byDate = byDate;
+        this.byDate = Objects.requireNonNull(byDate, "A deadline date must not be null.");
     }
 
     /**
@@ -30,6 +31,18 @@ public class Deadline extends Task {
      */
     public LocalDate getByDate() {
         return byDate;
+    }
+
+    /**
+     * Returns whether another deadline has the same description and due date.
+     *
+     * @param other Task to compare with this deadline.
+     * @return {@code true} if both deadlines have the same details.
+     */
+    @Override
+    public boolean hasSameDetails(Task other) {
+        return super.hasSameDetails(other)
+                && byDate.equals(((Deadline) other).byDate);
     }
 
     /**

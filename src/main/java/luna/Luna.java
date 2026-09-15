@@ -19,6 +19,7 @@ public class Luna {
     private final TaskList tasks;
     private boolean isExitRequested;
     private boolean isLatestResponseError;
+    private boolean isStorageReady;
 
     /**
      * Creates a Luna application with its UI, storage, and task list.
@@ -37,6 +38,7 @@ public class Luna {
         this.ui = ui;
         this.storage = storage;
         this.isLatestResponseError = false;
+        this.isStorageReady = false;
         this.tasks = loadTasks();
         this.isExitRequested = false;
     }
@@ -82,6 +84,10 @@ public class Luna {
 
         try {
             Command command = Parser.parse(trimmedInput);
+            if (!isStorageReady && command.isMutating()) {
+                throw new LunaException("Changes are disabled because your saved task file could not be loaded. "
+                        + "Fix or restore the file, then restart Luna so your data is not overwritten.");
+            }
             command.execute(tasks, ui, storage);
             isExitRequested = command.isExit();
         } catch (LunaException e) {
@@ -93,6 +99,9 @@ public class Luna {
         } catch (IndexOutOfBoundsException e) {
             isLatestResponseError = true;
             ui.showError("That task number does not exist in your list.");
+        } catch (IllegalArgumentException e) {
+            isLatestResponseError = true;
+            ui.showError(e.getMessage());
         }
 
         return ui.consumeLatestResponse();
@@ -135,7 +144,7 @@ public class Luna {
     }
 
     /**
-     * Loads tasks from storage and falls back to an empty list if loading fails.
+     * Loads tasks from storage and enables a protected read-only session if loading fails.
      *
      * @return Task list initialized from saved data when available.
      */
@@ -143,8 +152,9 @@ public class Luna {
         try {
             List<Task> loadedTasks = storage.loadTasks();
             assert loadedTasks != null : "Storage must return a non-null task collection";
+            isStorageReady = true;
             return new TaskList(loadedTasks);
-        } catch (IOException | LunaException e) {
+        } catch (IOException | LunaException | SecurityException e) {
             isLatestResponseError = true;
             ui.showLoadingError();
             return new TaskList();

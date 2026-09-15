@@ -31,13 +31,22 @@ public class DeleteCommand extends Command {
      */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
-        if (input.equalsIgnoreCase("delete")) {
-            throw new LunaException("Please provide a task number to delete.");
-        }
-
-        int index = Integer.parseInt(input.substring(7).trim()) - 1;
-        Task task = tasks.remove(index);
-        saveTasks(storage, tasks);
+        int index = parseTaskIndex(input, "delete", tasks.size(), "delete");
+        Task task = tasks.get(index);
+        TaskList updatedTasks = new TaskList(tasks.asList());
+        updatedTasks.remove(index);
+        saveTasks(storage, updatedTasks);
+        tasks.remove(index);
         ui.showDeleteSuccess(task, tasks.size());
+    }
+
+    /**
+     * Returns whether this command changes persisted task data.
+     *
+     * @return Always {@code true} for a delete command.
+     */
+    @Override
+    public boolean isMutating() {
+        return true;
     }
 }

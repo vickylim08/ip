@@ -126,4 +126,25 @@ public class ParserTest {
     public void parse_unknownCommand_throwsLunaException() {
         assertThrows(LunaException.class, () -> Parser.parse("unknown"));
     }
+
+    @Test
+    public void parse_nullOrBlankInput_throwsLunaException() {
+        assertThrows(LunaException.class, () -> Parser.parse(null));
+        assertThrows(LunaException.class, () -> Parser.parse("   \t  "));
+    }
+
+    @Test
+    public void parse_commandWithLeadingTrailingAndRepeatedWhitespace_returnsCorrectCommand()
+            throws LunaException {
+        Command command = Parser.parse("  todo    read book   ");
+
+        assertInstanceOf(TodoCommand.class, command);
+    }
+
+    @Test
+    public void parse_byeWithUnexpectedArgument_throwsLunaException() {
+        LunaException exception = assertThrows(LunaException.class, () -> Parser.parse("bye now"));
+
+        assertEquals("Please use bye without additional parameters.", exception.getMessage());
+    }
 }

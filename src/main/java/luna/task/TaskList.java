@@ -48,8 +48,24 @@ public class TaskList {
      * @param task Task to add.
      */
     public void add(Task task) {
-        assert task != null : "A task list must not contain null tasks";
+        if (task == null) {
+            throw new IllegalArgumentException("A task list must not contain null tasks.");
+        }
         tasks.add(task);
+    }
+
+    /**
+     * Returns whether the list already contains a task with the same details.
+     *
+     * @param candidate Task details to search for.
+     * @return {@code true} if an equivalent task is already in the list.
+     */
+    public boolean containsTaskWithSameDetails(Task candidate) {
+        if (candidate == null) {
+            return false;
+        }
+
+        return tasks.stream().anyMatch(task -> task.hasSameDetails(candidate));
     }
 
     /**

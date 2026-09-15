@@ -60,6 +60,46 @@ public class StorageTest {
     }
 
     @Test
+    public void loadTasks_eventEndsBeforeStart_throwsLunaException() throws IOException {
+        Path dataFile = temporaryDirectory.resolve("luna.txt");
+        Files.writeString(dataFile,
+                "E | 0 | meeting | 2026-09-10T10:00 | 2026-09-10T09:00");
+        Storage storage = new Storage(dataFile);
+
+        assertThrows(LunaException.class, storage::loadTasks);
+    }
+
+    @Test
+    public void loadTasks_blankDescription_throwsLunaException() throws IOException {
+        Path dataFile = temporaryDirectory.resolve("luna.txt");
+        Files.writeString(dataFile, "T | 0 | ");
+        Storage storage = new Storage(dataFile);
+
+        assertThrows(LunaException.class, storage::loadTasks);
+    }
+
+    @Test
+    public void loadTasks_duplicateActiveTask_throwsLunaException() throws IOException {
+        Path dataFile = temporaryDirectory.resolve("luna.txt");
+        Files.write(dataFile, List.of("T | 0 | read book", "T | 1 | READ BOOK"));
+        Storage storage = new Storage(dataFile);
+
+        LunaException exception = assertThrows(LunaException.class, storage::loadTasks);
+
+        assertTrue(exception.getMessage().contains("duplicate task at line 2"));
+    }
+
+    @Test
+    public void archiveTasks_existingArchiveIsCorrupted_doesNotModifyFile() throws IOException {
+        Path archiveFile = temporaryDirectory.resolve("archive.txt");
+        Files.writeString(archiveFile, "corrupted record");
+        Storage storage = new Storage(temporaryDirectory.resolve("luna.txt"), archiveFile);
+
+        assertThrows(LunaException.class, () -> storage.archiveTasks(List.of(new Todo("read book"))));
+        assertEquals("corrupted record", Files.readString(archiveFile));
+    }
+
+    @Test
     public void archiveAndLoad_multipleBatches_appendsTasksInOrder()
             throws IOException, LunaException {
         Path activeFile = temporaryDirectory.resolve("luna.txt");

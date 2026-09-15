@@ -3,6 +3,7 @@ package luna.task;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Represents a task that takes place within a time range.
@@ -12,8 +13,8 @@ public class Event extends Task {
             DateTimeFormatter.ofPattern(
                     "dd MMM uuuu, h:mm a",
                     Locale.ENGLISH);
-    private LocalDateTime fromDateTime;
-    private LocalDateTime toDateTime;
+    private final LocalDateTime fromDateTime;
+    private final LocalDateTime toDateTime;
 
     /**
      * Creates an event task with the given description and time range.
@@ -24,8 +25,11 @@ public class Event extends Task {
      */
     public Event(String description, LocalDateTime fromDateTime, LocalDateTime toDateTime) {
         super(description);
-        this.fromDateTime = fromDateTime;
-        this.toDateTime = toDateTime;
+        this.fromDateTime = Objects.requireNonNull(fromDateTime, "An event start time must not be null.");
+        this.toDateTime = Objects.requireNonNull(toDateTime, "An event end time must not be null.");
+        if (!fromDateTime.isBefore(toDateTime)) {
+            throw new IllegalArgumentException("An event must end after it starts.");
+        }
     }
 
     /**
@@ -44,6 +48,19 @@ public class Event extends Task {
      */
     public LocalDateTime getToDateTime() {
         return toDateTime;
+    }
+
+    /**
+     * Returns whether another event has the same description and time range.
+     *
+     * @param other Task to compare with this event.
+     * @return {@code true} if both events have the same details.
+     */
+    @Override
+    public boolean hasSameDetails(Task other) {
+        return super.hasSameDetails(other)
+                && fromDateTime.equals(((Event) other).fromDateTime)
+                && toDateTime.equals(((Event) other).toDateTime);
     }
 
     /**

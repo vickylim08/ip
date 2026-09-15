@@ -1,7 +1,10 @@
 package luna.command;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+import java.util.regex.Pattern;
 
 import luna.LunaException;
 import luna.storage.Storage;
@@ -13,6 +16,11 @@ import luna.ui.Ui;
  * Represents the command that adds a deadline task.
  */
 public class DeadlineCommand extends Command {
+    private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE
+            .withResolverStyle(ResolverStyle.STRICT);
+    private static final Pattern BY_PARAMETER = Pattern.compile("(?i)(?<!\\S)/by(?!\\S)");
+    private static final String USAGE_MESSAGE = "Please use deadline <description> /by <yyyy-MM-dd>.";
+
     private final String input;
 
     /**
@@ -34,26 +42,35 @@ public class DeadlineCommand extends Command {
      */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) throws LunaException {
-        if (input.equalsIgnoreCase("deadline")) {
-            throw new LunaException("Please provide the description and the deadline.");
+        String arguments = input.substring("deadline".length()).trim();
+        if (BY_PARAMETER.matcher(arguments).results().count() != 1) {
+            throw new LunaException(USAGE_MESSAGE);
         }
 
-        String[] parts = input.substring(9).split(" /by ", 2);
-        if (parts.length < 2) {
-            throw new LunaException("Please provide the description and the deadline.");
+        String[] parts = arguments.split("(?i)\\s+/by\\s+", -1);
+        if (parts.length != 2 || parts[0].isBlank() || parts[1].isBlank()) {
+            throw new LunaException(USAGE_MESSAGE);
         }
 
         String description = parts[0].trim();
         String dateText = parts[1].trim();
 
         try {
-            LocalDate date = LocalDate.parse(dateText);
+            LocalDate date = LocalDate.parse(dateText, INPUT_FORMAT);
             Deadline deadline = new Deadline(description, date);
-            tasks.add(deadline);
-            saveTasks(storage, tasks);
-            ui.showAddSuccess(deadline, tasks.size());
+            addTask(deadline, tasks, ui, storage);
         } catch (DateTimeParseException e) {
-            throw new LunaException("Please use the date format yyyy-MM-dd.");
+            throw new LunaException("That deadline date is not valid. Please use yyyy-MM-dd, for example 2026-09-30.");
         }
+    }
+
+    /**
+     * Returns whether this command changes persisted task data.
+     *
+     * @return Always {@code true} for a deadline command.
+     */
+    @Override
+    public boolean isMutating() {
+        return true;
     }
 }

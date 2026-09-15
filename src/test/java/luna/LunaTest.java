@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,6 +143,152 @@ public class LunaTest {
     }
 
     @Test
+    public void getResponse_deadlineWithRepeatedWhitespace_addsTask() {
+        InMemoryStorage storage = new InMemoryStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("  deadline   submit report   /by   2026-09-30  ");
+
+        assertTrue(response.contains("[D][ ] submit report (by: 30 Sep 2026)"));
+        assertEquals(List.of("D | 0 | submit report | 2026-09-30"), storage.getSavedTasks());
+    }
+
+    @Test
+    public void getResponse_nonExistentDate_returnsErrorWithoutAddingTask() {
+        InMemoryStorage storage = new InMemoryStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("deadline submit report /by 2026-02-30");
+
+        assertTrue(response.contains("That deadline date is not valid."));
+        assertTrue(luna.isLatestResponseError());
+        assertTrue(storage.getSavedTasks().isEmpty());
+    }
+
+    @Test
+    public void getResponse_descriptionContainsControlCharacter_returnsErrorWithoutAddingTask() {
+        InMemoryStorage storage = new InMemoryStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("todo read\nbook");
+
+        assertTrue(response.contains("A task description must not contain control characters."));
+        assertTrue(storage.getSavedTasks().isEmpty());
+    }
+
+    @Test
+    public void getResponse_eventDoesNotEndAfterStart_returnsErrorWithoutAddingTask() {
+        InMemoryStorage storage = new InMemoryStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse(
+                "event meeting /from 2026-09-30 1900 /to 2026-09-30 1900");
+
+        assertTrue(response.contains("The event end time must be later than its start time."));
+        assertTrue(storage.getSavedTasks().isEmpty());
+    }
+
+    @Test
+    public void getResponse_deadlineWithRepeatedParameter_returnsUsageError() {
+        InMemoryStorage storage = new InMemoryStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse(
+                "deadline submit report /by 2026-09-30 /by 2026-10-01");
+
+        assertTrue(response.contains("Please use deadline <description> /by <yyyy-MM-dd>."));
+        assertTrue(storage.getSavedTasks().isEmpty());
+    }
+
+    @Test
+    public void getResponse_eventWithRepeatedOrOutOfOrderParameter_returnsUsageError() {
+        InMemoryStorage storage = new InMemoryStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("event meeting /to 2026-09-30 1800 "
+                + "/from 2026-09-30 1700 /to 2026-09-30 1800");
+
+        assertTrue(response.contains("Please use event <description>"));
+        assertTrue(storage.getSavedTasks().isEmpty());
+    }
+
+    @Test
+    public void getResponse_duplicateTask_returnsErrorAndKeepsSingleTask() {
+        InMemoryStorage storage = new InMemoryStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+        luna.getResponse("todo Read Book");
+
+        String response = luna.getResponse("todo read book");
+
+        assertTrue(response.contains("That task is already on your active list."));
+        assertEquals(List.of("T | 0 | Read Book"), storage.getSavedTasks());
+    }
+
+    @Test
+    public void getResponse_markWithMultipleValues_returnsPreciseFormatError() {
+        Luna luna = new Luna(new Ui(false), new InMemoryStorage(List.of(new Todo("read book"))));
+
+        String response = luna.getResponse("mark 1 2");
+
+        assertTrue(response.contains("Please provide exactly one positive whole task number to mark."));
+    }
+
+    @Test
+    public void getResponse_taskNumberOutsideList_returnsRangeError() {
+        Luna luna = new Luna(new Ui(false), new InMemoryStorage(List.of(new Todo("read book"))));
+
+        String response = luna.getResponse("delete 2");
+
+        assertTrue(response.contains("Task 2 does not exist. Choose a number from 1 to 1."));
+    }
+
+    @Test
+    public void getResponse_addSaveFails_doesNotAddTaskInMemory() {
+        Luna luna = new Luna(new Ui(false), new FailingSaveStorage(List.of()));
+
+        String errorResponse = luna.getResponse("todo read book");
+        String listResponse = luna.getResponse("list");
+
+        assertTrue(errorResponse.contains("I could not save your tasks to disk."));
+        assertFalse(listResponse.contains("read book"));
+    }
+
+    @Test
+    public void getResponse_markSaveFails_restoresOriginalStatus() {
+        Luna luna = new Luna(new Ui(false), new FailingSaveStorage(List.of(new Todo("read book"))));
+
+        String errorResponse = luna.getResponse("mark 1");
+        String listResponse = luna.getResponse("list");
+
+        assertTrue(errorResponse.contains("I could not save your tasks to disk."));
+        assertTrue(listResponse.contains("[T][ ] read book"));
+    }
+
+    @Test
+    public void getResponse_deleteSaveFails_keepsTaskInMemory() {
+        Luna luna = new Luna(new Ui(false), new FailingSaveStorage(List.of(new Todo("read book"))));
+
+        String errorResponse = luna.getResponse("delete 1");
+        String listResponse = luna.getResponse("list");
+
+        assertTrue(errorResponse.contains("I could not save your tasks to disk."));
+        assertTrue(listResponse.contains("[T][ ] read book"));
+    }
+
+    @Test
+    public void getResponse_startupLoadFails_blocksChangesToProtectFile() {
+        FailingLoadStorage storage = new FailingLoadStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+        String loadingError = luna.consumePendingResponse();
+
+        String response = luna.getResponse("todo read book");
+
+        assertTrue(loadingError.contains("changes are disabled to protect the existing file"));
+        assertTrue(response.contains("Changes are disabled because your saved task file could not be loaded."));
+        assertFalse(storage.wasSaveAttempted());
+    }
+
+    @Test
     public void constructor_storageReturnsNull_assertsStorageContract() {
         assertThrows(AssertionError.class, () -> new Luna(new Ui(false), new NullStorage()));
     }
@@ -223,6 +370,58 @@ public class LunaTest {
         @Override
         public List<Task> loadTasks() {
             return null;
+        }
+    }
+
+    /**
+     * Storage double that loads normally but rejects every save.
+     */
+    private static class FailingSaveStorage extends Storage {
+        private final List<Task> loadedTasks;
+
+        /**
+         * Creates failing storage with predefined tasks.
+         *
+         * @param loadedTasks Tasks returned when Luna starts.
+         */
+        FailingSaveStorage(List<Task> loadedTasks) {
+            this.loadedTasks = new ArrayList<>(loadedTasks);
+        }
+
+        @Override
+        public List<Task> loadTasks() {
+            return new ArrayList<>(loadedTasks);
+        }
+
+        @Override
+        public void saveTasks(TaskList tasks) throws IOException {
+            throw new IOException("Storage unavailable");
+        }
+    }
+
+    /**
+     * Storage double that cannot load existing task data.
+     */
+    private static class FailingLoadStorage extends Storage {
+        private boolean wasSaveAttempted;
+
+        @Override
+        public List<Task> loadTasks() throws IOException {
+            throw new IOException("Storage unavailable");
+        }
+
+        @Override
+        public void saveTasks(TaskList tasks) {
+            wasSaveAttempted = true;
+        }
+
+        /**
+         * Returns whether Luna attempted to overwrite storage after the loading failure.
+         *
+         * @return {@code true} if a save was attempted.
+         */
+        public boolean wasSaveAttempted() {
+            return wasSaveAttempted;
         }
     }
 }
