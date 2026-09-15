@@ -30,6 +30,7 @@ project SDK and language level to JDK 25.
 
 | Command | Description |
 |---|---|
+| `help` | Display the complete command guide |
 | `todo <description>` | Add a todo |
 | `deadline <description> /by <yyyy-MM-dd>` | Add a deadline |
 | `event <description> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>` | Add an event |
@@ -69,5 +70,5 @@ On macOS or Linux:
 ./gradlew check
 ```
 
-See the [user guide](docs/README.md) for archive examples and the
+See the [user guide](docs/README.md) for complete command instructions and the
 [archive test plan](tests/test-plan.md) for acceptance scenarios.

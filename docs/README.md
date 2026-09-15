@@ -1,49 +1,219 @@
 # Luna User Guide
 
-Luna is a task manager that accepts commands through its chat interface. This
-guide describes how to move tasks out of the active list while retaining them
-in a local archive.
+**Luna** is a calm, chatbot-style task manager for keeping track of todos,
+deadlines, and events. Luna saves your active and archived tasks locally so
+they remain available after you close the application.
 
-## Archive one task
+![Luna's JavaFX chat interface](Ui.png)
 
-Use `archive <index>` to archive the task at the displayed index.
+## Quick start
 
-For example:
+Luna requires JDK 25.
+
+To run Luna from the project folder on Windows:
+
+```powershell
+.\gradlew.bat run
+```
+
+On macOS or Linux:
+
+```bash
+./gradlew run
+```
+
+When Luna opens, enter commands in the text field at the bottom. Press
+<kbd>Enter</kbd> or select **Send** to submit a command. Start with `help` to
+display the command guide inside Luna.
+
+## Reading command formats
+
+- Words in angle brackets are values that you provide. For example, replace
+  `<description>` with `read book`; do not type the angle brackets.
+- Command names are not case-sensitive.
+- Leading and trailing spaces are ignored, and extra spaces around parameter
+  markers are accepted.
+- Dates use `yyyy-MM-dd`, such as `2026-09-30`.
+- Times use the 24-hour `HHmm` format, such as `0900` or `1830`.
+- Separate an event's date and time with one space, for example
+  `2026-09-30 1830`.
+- Task indexes start from `1` and match the numbers shown by `list`.
+
+## Command summary
+
+| Action | Command |
+|---|---|
+| Display Luna's command guide | `help` |
+| Add a todo | `todo <description>` |
+| Add a deadline | `deadline <description> /by <yyyy-MM-dd>` |
+| Add an event | `event <description> /from <yyyy-MM-dd HHmm> /to <yyyy-MM-dd HHmm>` |
+| Display active tasks | `list` |
+| Find active tasks | `find <keyword>` |
+| Mark a task as completed | `mark <index>` |
+| Mark a task as incomplete | `unmark <index>` |
+| Permanently delete a task | `delete <index>` |
+| Archive one task | `archive <index>` |
+| Archive every active task | `archive all` |
+| Display archived tasks | `list archived` |
+| Exit Luna | `bye` |
+
+## Features
+
+### Viewing the command guide: `help`
+
+Use `help` at any time to display all available commands and their formats.
+
+```text
+help
+```
+
+`help` does not change your tasks.
+
+### Adding a todo: `todo`
+
+Use `todo <description>` for a task without a date or time.
+
+```text
+todo read book
+```
+
+Luna displays todos using `[T]`:
+
+```text
+[T][ ] read book
+```
+
+### Adding a deadline: `deadline`
+
+Use `deadline <description> /by <yyyy-MM-dd>` for a task due on a specific
+date.
+
+```text
+deadline submit report /by 2026-09-30
+```
+
+Luna displays deadlines using `[D]` and a reader-friendly date:
+
+```text
+[D][ ] submit report (by: 30 Sep 2026)
+```
+
+The `/by` parameter is required and can appear only once. Non-existent dates,
+such as `2026-02-30`, are rejected.
+
+### Adding an event: `event`
+
+Use `event <description> /from <start> /to <end>` for a task that spans a
+specific time.
+
+```text
+event team meeting /from 2026-09-30 0900 /to 2026-09-30 1030
+```
+
+Luna displays events using `[E]`:
+
+```text
+[E][ ] team meeting (from: 30 Sep 2026, 9:00 AM to: 30 Sep 2026, 10:30 AM)
+```
+
+Use `/from` before `/to`, exactly once each. The end must be later than the
+start; an equal or earlier end time is rejected.
+
+Luna rejects an active task if another active task already has the same type
+and details. Differences in capitalization, repeated spaces, or completion
+status do not make a task unique.
+
+### Displaying active tasks: `list`
+
+Use `list` to display all active tasks and their current indexes.
+
+```text
+list
+```
+
+```text
+Here's what's on your radar:
+1. [T][ ] read book
+2. [D][X] submit report (by: 30 Sep 2026)
+```
+
+`[ ]` means incomplete and `[X]` means completed. Run `list` before an
+index-based command if you are unsure which index to use.
+
+### Finding active tasks: `find`
+
+Use `find <keyword>` to search active task descriptions. Matching is not
+case-sensitive.
+
+```text
+find report
+```
+
+```text
+These tasks came into view:
+1. [D][X] submit report (by: 30 Sep 2026)
+```
+
+Only active tasks are searched. Archived tasks are not included.
+
+### Marking a task as completed: `mark`
+
+Use `mark <index>` with an index shown by `list`.
+
+```text
+mark 1
+```
+
+The task changes from `[ ]` to `[X]`.
+
+### Marking a task as incomplete: `unmark`
+
+Use `unmark <index>` to return a completed task to the incomplete state.
+
+```text
+unmark 1
+```
+
+The task changes from `[X]` to `[ ]`.
+
+### Permanently deleting a task: `delete`
+
+Use `delete <index>` to permanently remove an active task.
+
+```text
+delete 2
+```
+
+> **Caution:** Deleted tasks are not placed in the archive and cannot be
+> restored from within Luna. Use `archive` when you want to retain a task.
+
+### Archiving one task: `archive`
+
+Use `archive <index>` to move an active task into the archive.
 
 ```text
 archive 2
 ```
 
-Luna removes task 2 from the active list, renumbers the remaining tasks, and
-appends the archived task to `data/archive.txt`.
+Luna removes the task from the active list and renumbers the remaining tasks:
 
 ```text
-Archived 1 task to data/archive.txt.
-Now you have 2 tasks in the list.
+Tucked away 1 task to data/archive.txt.
+You have 2 tasks still on your radar.
 ```
 
-The index must be a positive integer that exists in the active task list.
+### Archiving all active tasks: `archive all`
 
-## Archive all active tasks
-
-Use `archive all` to move every active task into the archive.
+Use `archive all` to move every active task into the archive while preserving
+their order.
 
 ```text
 archive all
 ```
 
-```text
-Archived 3 tasks to data/archive.txt.
-Now you have 0 tasks in the list.
-```
+If the active list is empty, Luna leaves the archive unchanged.
 
-If there are no active tasks, Luna does not modify the archive:
-
-```text
-There are no tasks to archive.
-```
-
-## List archived tasks
+### Displaying archived tasks: `list archived`
 
 Use `list archived` to display archived tasks from oldest to newest.
 
@@ -52,33 +222,54 @@ list archived
 ```
 
 ```text
-Here are your archived tasks:
+These tasks are resting in your archive:
 1. [T][ ] read book
-2. [D][X] submit report (by: 12 Sep 2026)
+2. [D][X] submit report (by: 30 Sep 2026)
 ```
 
-If the archive is empty or does not exist:
+Archived tasks are read-only. Luna cannot mark, unmark, delete, search, or
+restore them. You can create and archive another task with the same details,
+so duplicate archive entries are allowed.
+
+### Exiting Luna: `bye`
+
+Use `bye` without additional parameters to finish the session.
 
 ```text
-There are no archived tasks.
+bye
 ```
 
-Archived tasks are read-only. They cannot be marked, unmarked, deleted,
-searched, or restored from within Luna.
+The input field and **Send** button are disabled after Luna replies.
 
-## Archive storage
+## Error messages
 
-Luna stores active tasks in `data/luna.txt` and archived tasks in
-`data/archive.txt`. Both files use the same task-record format:
+Luna displays command errors in a pale-red card labelled **Check your
+command**. The message explains which value or format needs correction.
 
-```text
-T | 0 | read book
-D | 1 | submit report | 2026-09-12
-E | 0 | team meeting | 2026-09-12T09:00 | 2026-09-12T10:00
-```
+Common solutions include:
 
-The archive is append-only, preserves archive order, and allows duplicate
-entries. No archive timestamps are stored.
+- Enter `help` to confirm the command format.
+- Enter `list` to check the latest active-task indexes.
+- Use a positive whole number for `<index>`.
+- Check that dates exist and follow `yyyy-MM-dd`.
+- Check that event times follow `HHmm` and that the end is later than the
+  start.
+- Remove repeated or additional parameters from the command.
 
-The existing `delete <index>` command remains a permanent deletion and does
-not add the task to the archive.
+## Data storage and recovery
+
+Luna stores data in the following plain-text files relative to the folder
+from which it is launched:
+
+- `data/luna.txt` contains active tasks.
+- `data/archive.txt` contains archived tasks in archive order.
+
+Missing files and folders are created automatically when Luna first saves
+tasks. Avoid editing these files while Luna is running.
+
+If the active-task file cannot be read because it is malformed, unavailable,
+or access is denied, Luna starts a protected read-only session. Commands such
+as `list`, `find`, `help`, and `bye` remain available, but commands that change
+task data are blocked to prevent the existing file from being overwritten.
+Close Luna, restore or correct the file or its permissions, and restart Luna
+before making further changes.
