@@ -26,6 +26,15 @@ public class UiTest {
     }
 
     @Test
+    public void showTaskList_emptyList_formatsHeadingWithoutEntries() {
+        Ui ui = new Ui(false);
+
+        ui.showTaskList(new TaskList());
+
+        assertEquals("Here's what's on your radar:", ui.consumeLatestResponse());
+    }
+
+    @Test
     public void showMatchingTasks_tasksProvided_formatsNumberedMatchingTasks() {
         Ui ui = new Ui(false);
         List<Task> matchingTasks = List.of(new Todo("read book"));
@@ -81,6 +90,28 @@ public class UiTest {
     }
 
     @Test
+    public void showMarkSuccess_taskProvided_formatsCompletionConfirmation() {
+        Ui ui = new Ui(false);
+        Todo task = new Todo("read book");
+        task.markAsDone();
+
+        ui.showMarkSuccess(task);
+
+        assertEquals("Nicely done - this task is complete:\n[T][X] read book", ui.consumeLatestResponse());
+    }
+
+    @Test
+    public void showUnmarkSuccess_taskProvided_formatsActiveConfirmation() {
+        Ui ui = new Ui(false);
+        Todo task = new Todo("read book");
+
+        ui.showUnmarkSuccess(task);
+
+        assertEquals("No rush. This task is back on your active path:\n[T][ ] read book",
+                ui.consumeLatestResponse());
+    }
+
+    @Test
     public void showArchiveSuccess_oneTask_formatsArchiveConfirmation() {
         Ui ui = new Ui(false);
 
@@ -88,6 +119,16 @@ public class UiTest {
 
         assertEquals("Tucked away 1 task to data/archive.txt.\n"
                 + "You have 1 task still on your radar.", ui.consumeLatestResponse());
+    }
+
+    @Test
+    public void showArchiveSuccess_multipleTasks_formatsPluralNouns() {
+        Ui ui = new Ui(false);
+
+        ui.showArchiveSuccess(2, 3);
+
+        assertEquals("Tucked away 2 tasks to data/archive.txt.\n"
+                + "You have 3 tasks still on your radar.", ui.consumeLatestResponse());
     }
 
     @Test
@@ -110,5 +151,54 @@ public class UiTest {
         assertTrue(response.startsWith("Available commands:"));
         assertTrue(response.contains("> deadline <desc> /by <yyyy-MM-dd>:"));
         assertTrue(response.contains("> help: Displays this command guide."));
+    }
+
+    @Test
+    public void showError_messageProvided_formatsBrandedError() {
+        Ui ui = new Ui(false);
+
+        ui.showError("Please enter a command.");
+
+        assertEquals("I lost that signal. Please enter a command.", ui.consumeLatestResponse());
+    }
+
+    @Test
+    public void showLoadingError_formatsProtectedSessionMessage() {
+        Ui ui = new Ui(false);
+
+        ui.showLoadingError();
+
+        assertTrue(ui.consumeLatestResponse().contains("changes are disabled to protect the existing file"));
+    }
+
+    @Test
+    public void showExit_formatsFarewell() {
+        Ui ui = new Ui(false);
+
+        ui.showExit();
+
+        assertEquals("The moon is setting. Rest well - I'll keep your tasks safe.", ui.consumeLatestResponse());
+    }
+
+    @Test
+    public void consumeLatestResponse_calledTwice_clearsResponseAfterFirstCall() {
+        Ui ui = new Ui(false);
+        ui.showError("test");
+
+        String firstResponse = ui.consumeLatestResponse();
+        String secondResponse = ui.consumeLatestResponse();
+
+        assertEquals("I lost that signal. test", firstResponse);
+        assertEquals("", secondResponse);
+    }
+
+    @Test
+    public void getWelcomeMessage_guiMode_returnsCompactWelcome() {
+        Ui ui = new Ui(false);
+
+        String welcomeMessage = ui.getWelcomeMessage();
+
+        assertTrue(welcomeMessage.startsWith("Plan your night"));
+        assertTrue(welcomeMessage.contains("Type help to view all commands."));
     }
 }

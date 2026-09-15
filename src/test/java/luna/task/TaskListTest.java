@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -78,6 +79,53 @@ public class TaskListTest {
     }
 
     @Test
+    public void constructor_emptyList_createsEmptyTaskList() {
+        TaskList taskList = new TaskList();
+
+        assertEquals(0, taskList.size());
+        assertTrue(taskList.asList().isEmpty());
+    }
+
+    @Test
+    public void constructor_listProvided_copiesSourceList() {
+        List<Task> sourceTasks = new ArrayList<>(List.of(new Todo("read book")));
+        TaskList taskList = new TaskList(sourceTasks);
+
+        sourceTasks.clear();
+
+        assertEquals(1, taskList.size());
+    }
+
+    @Test
+    public void addAndRemove_validTask_updatesListAndReturnsTask() {
+        TaskList taskList = new TaskList();
+        Todo todo = new Todo("read book");
+
+        taskList.add(todo);
+        Task removedTask = taskList.remove(0);
+
+        assertSame(todo, removedTask);
+        assertEquals(0, taskList.size());
+    }
+
+    @Test
+    public void add_nullTask_throwsIllegalArgumentException() {
+        TaskList taskList = new TaskList();
+
+        assertThrows(IllegalArgumentException.class, () -> taskList.add(null));
+    }
+
+    @Test
+    public void asList_returnedListIsModified_keepsOriginalListUnchanged() {
+        TaskList taskList = new TaskList(new Todo("read book"));
+        List<Task> copiedTasks = taskList.asList();
+
+        copiedTasks.clear();
+
+        assertEquals(1, taskList.size());
+    }
+
+    @Test
     public void constructor_nullTask_assertsTaskListInvariant() {
         assertThrows(AssertionError.class, () -> new TaskList((Task) null));
     }
@@ -136,5 +184,20 @@ public class TaskListTest {
         TaskList taskList = new TaskList(existingEvent);
 
         assertFalse(taskList.containsTaskWithSameDetails(laterEvent));
+    }
+
+    @Test
+    public void containsTaskWithSameDetails_nullCandidate_returnsFalse() {
+        TaskList taskList = new TaskList(new Todo("read book"));
+
+        assertFalse(taskList.containsTaskWithSameDetails(null));
+    }
+
+    @Test
+    public void unmark_indexOutsideList_throwsIndexOutOfBoundsException() {
+        TaskList taskList = new TaskList(new Todo("read book"));
+
+        assertThrows(IndexOutOfBoundsException.class, () -> taskList.unmark(-1));
+        assertThrows(IndexOutOfBoundsException.class, () -> taskList.unmark(1));
     }
 }

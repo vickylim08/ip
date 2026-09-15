@@ -62,6 +62,77 @@ public class LunaTest {
     }
 
     @Test
+    public void getResponse_eventCommand_returnsConfirmationAndPersistsTask() {
+        InMemoryStorage storage = new InMemoryStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse(
+                "event meeting /from 2026-09-15 0900 /to 2026-09-15 1030");
+
+        assertTrue(response.contains("[E][ ] meeting (from: 15 Sep 2026, 9:00 AM "
+                + "to: 15 Sep 2026, 10:30 AM)"));
+        assertEquals(List.of("E | 0 | meeting | 2026-09-15T09:00 | 2026-09-15T10:30"),
+                storage.getSavedTasks());
+    }
+
+    @Test
+    public void getResponse_markCommand_updatesAndPersistsTask() {
+        InMemoryStorage storage = new InMemoryStorage(List.of(new Todo("read book")));
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("mark 1");
+
+        assertTrue(response.contains("[T][X] read book"));
+        assertEquals(List.of("T | 1 | read book"), storage.getSavedTasks());
+    }
+
+    @Test
+    public void getResponse_unmarkCommand_updatesAndPersistsTask() {
+        Todo completedTask = new Todo("read book");
+        completedTask.markAsDone();
+        InMemoryStorage storage = new InMemoryStorage(List.of(completedTask));
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("unmark 1");
+
+        assertTrue(response.contains("[T][ ] read book"));
+        assertEquals(List.of("T | 0 | read book"), storage.getSavedTasks());
+    }
+
+    @Test
+    public void getResponse_deleteCommand_removesAndPersistsRemainingTasks() {
+        InMemoryStorage storage = new InMemoryStorage(List.of(
+                new Todo("read book"), new Todo("submit quiz")));
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("delete 1");
+
+        assertTrue(response.contains("Cleared from your path:\n[T][ ] read book"));
+        assertEquals(List.of("T | 0 | submit quiz"), storage.getSavedTasks());
+    }
+
+    @Test
+    public void getResponse_listCommand_displaysAllActiveTasks() {
+        Luna luna = new Luna(new Ui(false), new InMemoryStorage(List.of(
+                new Todo("read book"), new Todo("submit quiz"))));
+
+        String response = luna.getResponse("list");
+
+        assertEquals("Here's what's on your radar:\n"
+                + "1. [T][ ] read book\n"
+                + "2. [T][ ] submit quiz", response);
+    }
+
+    @Test
+    public void getResponse_findWithNoMatch_returnsEmptyResultHeading() {
+        Luna luna = new Luna(new Ui(false), new InMemoryStorage(List.of(new Todo("read book"))));
+
+        String response = luna.getResponse("find meeting");
+
+        assertEquals("These tasks came into view:", response);
+    }
+
+    @Test
     public void getResponse_invalidCommand_returnsErrorMessage() {
         Luna luna = new Luna(new Ui(false), new InMemoryStorage());
 
@@ -86,6 +157,16 @@ public class LunaTest {
         Luna luna = new Luna(new Ui(false), new InMemoryStorage());
 
         String response = luna.getResponse("   ");
+
+        assertEquals("", response);
+        assertFalse(luna.isExitRequested());
+    }
+
+    @Test
+    public void getResponse_nullInput_returnsEmptyStringAndKeepsRunning() {
+        Luna luna = new Luna(new Ui(false), new InMemoryStorage());
+
+        String response = luna.getResponse(null);
 
         assertEquals("", response);
         assertFalse(luna.isExitRequested());
@@ -246,6 +327,24 @@ public class LunaTest {
     }
 
     @Test
+    public void getResponse_taskNumberIsTooLarge_returnsPreciseError() {
+        Luna luna = new Luna(new Ui(false), new InMemoryStorage(List.of(new Todo("read book"))));
+
+        String response = luna.getResponse("mark 999999999999999999999999");
+
+        assertTrue(response.contains("That task number is too large."));
+    }
+
+    @Test
+    public void getResponse_noActiveTasks_returnsActionSpecificError() {
+        Luna luna = new Luna(new Ui(false), new InMemoryStorage());
+
+        String response = luna.getResponse("unmark 1");
+
+        assertTrue(response.contains("There are no active tasks to unmark."));
+    }
+
+    @Test
     public void getResponse_taskNumberOutsideList_returnsRangeError() {
         Luna luna = new Luna(new Ui(false), new InMemoryStorage(List.of(new Todo("read book"))));
 
@@ -274,6 +373,19 @@ public class LunaTest {
 
         assertTrue(errorResponse.contains("I could not save your tasks to disk."));
         assertTrue(listResponse.contains("[T][ ] read book"));
+    }
+
+    @Test
+    public void getResponse_unmarkSaveFails_restoresOriginalStatus() {
+        Todo completedTask = new Todo("read book");
+        completedTask.markAsDone();
+        Luna luna = new Luna(new Ui(false), new FailingSaveStorage(List.of(completedTask)));
+
+        String errorResponse = luna.getResponse("unmark 1");
+        String listResponse = luna.getResponse("list");
+
+        assertTrue(errorResponse.contains("I could not save your tasks to disk."));
+        assertTrue(listResponse.contains("[T][X] read book"));
     }
 
     @Test

@@ -1,6 +1,7 @@
 package luna.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -51,6 +52,46 @@ public class StorageTest {
     }
 
     @Test
+    public void saveTasks_nestedDirectoryIsMissing_createsDirectoryAndFile() throws IOException {
+        Path dataFile = temporaryDirectory.resolve("nested/data/luna.txt");
+        Storage storage = new Storage(dataFile);
+
+        storage.saveTasks(new TaskList(new Todo("read book")));
+
+        assertEquals(List.of("T | 0 | read book"), Files.readAllLines(dataFile));
+    }
+
+    @Test
+    public void saveTasks_fileAlreadyExists_replacesOldContent() throws IOException {
+        Path dataFile = temporaryDirectory.resolve("luna.txt");
+        Files.write(dataFile, List.of("T | 0 | old task", "T | 0 | another old task"));
+        Storage storage = new Storage(dataFile);
+
+        storage.saveTasks(new TaskList(new Todo("new task")));
+
+        assertEquals(List.of("T | 0 | new task"), Files.readAllLines(dataFile));
+    }
+
+    @Test
+    public void loadTasks_missingFile_returnsEmptyList() throws IOException, LunaException {
+        Storage storage = new Storage(temporaryDirectory.resolve("missing.txt"));
+
+        assertTrue(storage.loadTasks().isEmpty());
+    }
+
+    @Test
+    public void loadTasks_blankLines_ignoresBlankRecords() throws IOException, LunaException {
+        Path dataFile = temporaryDirectory.resolve("luna.txt");
+        Files.write(dataFile, List.of("", "T | 0 | read book", "   "));
+        Storage storage = new Storage(dataFile);
+
+        List<Task> tasks = storage.loadTasks();
+
+        assertEquals(1, tasks.size());
+        assertEquals("read book", tasks.get(0).getDescription());
+    }
+
+    @Test
     public void loadTasks_invalidDeadlineDate_throwsLunaException() throws IOException {
         Path dataFile = temporaryDirectory.resolve("luna.txt");
         Files.writeString(dataFile, "D | 0 | submit report | invalid-date");
@@ -90,6 +131,35 @@ public class StorageTest {
     }
 
     @Test
+    public void loadTasks_invalidStatus_throwsLunaExceptionWithLineNumber() throws IOException {
+        Path dataFile = temporaryDirectory.resolve("luna.txt");
+        Files.writeString(dataFile, "T | done | read book");
+        Storage storage = new Storage(dataFile);
+
+        LunaException exception = assertThrows(LunaException.class, storage::loadTasks);
+
+        assertTrue(exception.getMessage().contains("line 1"));
+        assertTrue(exception.getMessage().contains("status is invalid"));
+    }
+
+    @Test
+    public void loadTasks_unsupportedOrIncompleteRecord_throwsLunaException() throws IOException {
+        Path dataFile = temporaryDirectory.resolve("luna.txt");
+        Storage storage = new Storage(dataFile);
+        List<String> invalidRecords = List.of(
+                "invalid record",
+                "X | 0 | unknown task",
+                "D | 0 | missing date",
+                "E | 0 | meeting | 2026-09-15T09:00",
+                "E | 0 | meeting | invalid | 2026-09-15T10:00");
+
+        for (String invalidRecord : invalidRecords) {
+            Files.writeString(dataFile, invalidRecord);
+            assertThrows(LunaException.class, storage::loadTasks, invalidRecord);
+        }
+    }
+
+    @Test
     public void archiveTasks_existingArchiveIsCorrupted_doesNotModifyFile() throws IOException {
         Path archiveFile = temporaryDirectory.resolve("archive.txt");
         Files.writeString(archiveFile, "corrupted record");
@@ -97,6 +167,16 @@ public class StorageTest {
 
         assertThrows(LunaException.class, () -> storage.archiveTasks(List.of(new Todo("read book"))));
         assertEquals("corrupted record", Files.readString(archiveFile));
+    }
+
+    @Test
+    public void archiveTasks_emptyCollection_doesNotCreateArchive() throws IOException, LunaException {
+        Path archiveFile = temporaryDirectory.resolve("archive.txt");
+        Storage storage = new Storage(temporaryDirectory.resolve("luna.txt"), archiveFile);
+
+        storage.archiveTasks(List.of());
+
+        assertFalse(Files.exists(archiveFile));
     }
 
     @Test
