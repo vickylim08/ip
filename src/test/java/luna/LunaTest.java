@@ -124,6 +124,16 @@ public class LunaTest {
     }
 
     @Test
+    public void getResponse_listCommandWithNoTasks_returnsHelpfulEmptyState() {
+        Luna luna = new Luna(new Ui(false), new InMemoryStorage());
+
+        String response = luna.getResponse("list");
+
+        assertEquals("Your radar is clear - there are no active tasks yet.\n"
+                + "Try todo <description> to add one.", response);
+    }
+
+    @Test
     public void getResponse_findWithNoMatch_returnsEmptyResultHeading() {
         Luna luna = new Luna(new Ui(false), new InMemoryStorage(List.of(new Todo("read book"))));
 

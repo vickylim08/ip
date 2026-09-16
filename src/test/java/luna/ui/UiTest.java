@@ -26,12 +26,13 @@ public class UiTest {
     }
 
     @Test
-    public void showTaskList_emptyList_formatsHeadingWithoutEntries() {
+    public void showTaskList_emptyList_formatsHelpfulEmptyState() {
         Ui ui = new Ui(false);
 
         ui.showTaskList(new TaskList());
 
-        assertEquals("Here's what's on your radar:", ui.consumeLatestResponse());
+        assertEquals("Your radar is clear - there are no active tasks yet.\n"
+                + "Try todo <description> to add one.", ui.consumeLatestResponse());
     }
 
     @Test

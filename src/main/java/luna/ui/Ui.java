@@ -119,6 +119,12 @@ public class Ui {
      * @param tasks Tasks to display.
      */
     public void showTaskList(TaskList tasks) {
+        if (tasks.size() == 0) {
+            showMessage(formatResponse("Your radar is clear - there are no active tasks yet.\n"
+                    + "Try todo <description> to add one."));
+            return;
+        }
+
         showTasks("Here's what's on your radar:", tasks.asList());
     }
 

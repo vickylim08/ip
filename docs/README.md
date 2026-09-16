@@ -140,6 +140,13 @@ Here's what's on your radar:
 `[ ]` means incomplete and `[X]` means completed. Run `list` before an
 index-based command if you are unsure which index to use.
 
+If there are no active tasks, Luna suggests how to add the first one:
+
+```text
+Your radar is clear - there are no active tasks yet.
+Try todo <description> to add one.
+```
+
 ### Finding active tasks: `find`
 
 Use `find <keyword>` to search active task descriptions. Matching is not
