@@ -131,10 +131,15 @@ public class Ui {
     /**
      * Shows the tasks whose descriptions match a search keyword.
      *
-     * @param matchingTasks Tasks that matched the search keyword.
+     * @param tasks Complete active task list.
+     * @param matchingTaskIndices Zero-based indices of tasks that matched the search keyword.
      */
-    public void showMatchingTasks(List<Task> matchingTasks) {
-        showTasks("These tasks came into view:", matchingTasks);
+    public void showMatchingTasks(TaskList tasks, List<Integer> matchingTaskIndices) {
+        StringBuilder message = new StringBuilder("These tasks came into view:");
+        for (int taskIndex : matchingTaskIndices) {
+            message.append('\n').append(taskIndex + 1).append(". ").append(tasks.get(taskIndex));
+        }
+        showMessage(formatResponse(message.toString()));
     }
 
     /**

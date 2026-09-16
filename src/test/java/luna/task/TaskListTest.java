@@ -131,35 +131,33 @@ public class TaskListTest {
     }
 
     @Test
-    public void findTasks_keywordMatchesMultipleTasks_returnsMatchingTasksInOrder() {
-        Todo firstMatch = new Todo("read book");
-        Todo nonMatch = new Todo("submit quiz");
-        Todo secondMatch = new Todo("return book");
-        TaskList taskList = new TaskList(firstMatch, nonMatch, secondMatch);
+    public void findTaskIndices_keywordMatchesMultipleTasks_returnsOriginalIndices() {
+        TaskList taskList = new TaskList(
+                new Todo("read book"),
+                new Todo("submit quiz"),
+                new Todo("return book"));
 
-        List<Task> matchingTasks = taskList.findTasks("book");
+        List<Integer> matchingTaskIndices = taskList.findTaskIndices("book");
 
-        assertIterableEquals(List.of(firstMatch, secondMatch), matchingTasks);
+        assertIterableEquals(List.of(0, 2), matchingTaskIndices);
     }
 
     @Test
-    public void findTasks_keywordUsesCaseInsensitiveMatching_returnsMatchingTasks() {
-        Todo match = new Todo("Read Book");
-        Todo nonMatch = new Todo("write summary");
-        TaskList taskList = new TaskList(match, nonMatch);
+    public void findTaskIndices_keywordUsesCaseInsensitiveMatching_returnsOriginalIndex() {
+        TaskList taskList = new TaskList(new Todo("Read Book"), new Todo("write summary"));
 
-        List<Task> matchingTasks = taskList.findTasks("book");
+        List<Integer> matchingTaskIndices = taskList.findTaskIndices("book");
 
-        assertIterableEquals(List.of(match), matchingTasks);
+        assertIterableEquals(List.of(0), matchingTaskIndices);
     }
 
     @Test
-    public void findTasks_keywordMatchesNoTasks_returnsEmptyList() {
+    public void findTaskIndices_keywordMatchesNoTasks_returnsEmptyList() {
         TaskList taskList = new TaskList(new Todo("read book"), new Todo("submit quiz"));
 
-        List<Task> matchingTasks = taskList.findTasks("meeting");
+        List<Integer> matchingTaskIndices = taskList.findTaskIndices("meeting");
 
-        assertTrue(matchingTasks.isEmpty());
+        assertTrue(matchingTaskIndices.isEmpty());
     }
 
     @Test

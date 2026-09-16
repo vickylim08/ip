@@ -143,6 +143,20 @@ public class LunaTest {
     }
 
     @Test
+    public void getResponse_findWithNonConsecutiveMatches_preservesOriginalTaskNumbers() {
+        Luna luna = new Luna(new Ui(false), new InMemoryStorage(List.of(
+                new Todo("read book"),
+                new Todo("submit quiz"),
+                new Todo("return book"))));
+
+        String response = luna.getResponse("find book");
+
+        assertEquals("These tasks came into view:\n"
+                + "1. [T][ ] read book\n"
+                + "3. [T][ ] return book", response);
+    }
+
+    @Test
     public void getResponse_invalidCommand_returnsErrorMessage() {
         Luna luna = new Luna(new Ui(false), new InMemoryStorage());
 

@@ -40,6 +40,7 @@ public class Main extends Application {
     private HBox inputContainer;
     private TextField userInput;
     private Button sendButton;
+    private Stage primaryStage;
 
     /**
      * Creates the JavaFX application and its chatbot backend.
@@ -55,6 +56,7 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage stage) {
+        this.primaryStage = stage;
         scrollPane = new ScrollPane();
         scrollPane.getStyleClass().add("chat-scroll");
 
@@ -200,8 +202,7 @@ public class Main extends Application {
         userInput.clear();
 
         if (luna.isExitRequested()) {
-            userInput.setDisable(true);
-            sendButton.setDisable(true);
+            primaryStage.close();
         }
     }
 

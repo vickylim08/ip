@@ -4,7 +4,6 @@ import java.util.List;
 
 import luna.LunaException;
 import luna.storage.Storage;
-import luna.task.Task;
 import luna.task.TaskList;
 import luna.ui.Ui;
 
@@ -38,7 +37,7 @@ public class FindCommand extends Command {
             throw new LunaException("Please provide a keyword to search for.");
         }
 
-        List<Task> matchingTasks = tasks.findTasks(keyword);
-        ui.showMatchingTasks(matchingTasks);
+        List<Integer> matchingTaskIndices = tasks.findTaskIndices(keyword);
+        ui.showMatchingTasks(tasks, matchingTaskIndices);
     }
 }

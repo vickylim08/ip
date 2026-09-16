@@ -36,13 +36,18 @@ public class UiTest {
     }
 
     @Test
-    public void showMatchingTasks_tasksProvided_formatsNumberedMatchingTasks() {
+    public void showMatchingTasks_nonConsecutiveMatches_preservesOriginalTaskNumbers() {
         Ui ui = new Ui(false);
-        List<Task> matchingTasks = List.of(new Todo("read book"));
+        TaskList tasks = new TaskList(
+                new Todo("read book"),
+                new Todo("submit quiz"),
+                new Todo("return book"));
 
-        ui.showMatchingTasks(matchingTasks);
+        ui.showMatchingTasks(tasks, List.of(0, 2));
 
-        assertEquals("These tasks came into view:\n1. [T][ ] read book",
+        assertEquals("These tasks came into view:\n"
+                        + "1. [T][ ] read book\n"
+                        + "3. [T][ ] return book",
                 ui.consumeLatestResponse());
     }
 

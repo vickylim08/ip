@@ -60,7 +60,7 @@ public class FindCommandTest {
         String output = outputStream.toString(StandardCharsets.UTF_8).replace("\r\n", "\n");
         assertTrue(output.contains("These tasks came into view:"));
         assertTrue(output.contains("1. [T][ ] read book"));
-        assertTrue(output.contains("2. [T][ ] return book"));
+        assertTrue(output.contains("3. [T][ ] return book"));
     }
 
     private Ui createUi() {

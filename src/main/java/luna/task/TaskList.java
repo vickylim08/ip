@@ -138,22 +138,23 @@ public class TaskList {
     }
 
     /**
-     * Returns the tasks whose descriptions contain the given keyword.
+     * Returns the zero-based indices of tasks whose descriptions contain the given keyword.
      *
      * @param keyword Keyword to search for in task descriptions.
-     * @return Matching tasks in their original order.
+     * @return Indices of matching tasks in their original order.
      */
-    public List<Task> findTasks(String keyword) {
-        List<Task> matchingTasks = new ArrayList<>();
+    public List<Integer> findTaskIndices(String keyword) {
+        List<Integer> matchingTaskIndices = new ArrayList<>();
         String normalizedKeyword = keyword.toLowerCase(Locale.ENGLISH);
 
-        for (Task task : tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
             String normalizedDescription = task.getDescription().toLowerCase(Locale.ENGLISH);
             if (normalizedDescription.contains(normalizedKeyword)) {
-                matchingTasks.add(task);
+                matchingTaskIndices.add(i);
             }
         }
 
-        return matchingTasks;
+        return matchingTaskIndices;
     }
 }

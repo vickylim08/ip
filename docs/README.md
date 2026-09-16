@@ -162,6 +162,8 @@ These tasks came into view:
 ```
 
 Only active tasks are searched. Archived tasks are not included.
+The displayed numbers remain the tasks' original indexes from `list`, so they
+can be used directly with commands such as `mark` and `unmark`.
 
 ### Marking a task as completed: `mark`
 
@@ -246,7 +248,7 @@ Use `bye` without additional parameters to finish the session.
 bye
 ```
 
-The input field and **Send** button are disabled after Luna replies.
+Luna closes the application window after showing the farewell response.
 
 ## Error messages
 
