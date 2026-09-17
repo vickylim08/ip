@@ -248,7 +248,8 @@ Use `bye` without additional parameters to finish the session.
 bye
 ```
 
-Luna closes the application window after showing the farewell response.
+Luna shows the farewell response, then closes the application window after a
+short delay.
 
 ## Error messages
 

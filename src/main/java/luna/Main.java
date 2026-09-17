@@ -1,5 +1,6 @@
 package luna;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,6 +15,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import luna.storage.Storage;
 import luna.ui.DialogBox;
 import luna.ui.Ui;
@@ -31,6 +33,7 @@ public class Main extends Application {
     private static final double SEND_BUTTON_WIDTH = 58.0;
     private static final double EDGE_PADDING = 8.0;
     private static final double HEADER_ICON_SIZE = 38.0;
+    private static final double EXIT_DELAY_MILLIS = 900.0;
     private static final String MOON_ICON = "\u263E";
     private static final String STYLESHEET_PATH = "/luna.css";
 
@@ -202,8 +205,20 @@ public class Main extends Application {
         userInput.clear();
 
         if (luna.isExitRequested()) {
-            primaryStage.close();
+            startExitSequence();
         }
+    }
+
+    /**
+     * Prevents further input and closes the window after the farewell has been visible briefly.
+     */
+    private void startExitSequence() {
+        userInput.setDisable(true);
+        sendButton.setDisable(true);
+
+        PauseTransition exitDelay = new PauseTransition(Duration.millis(EXIT_DELAY_MILLIS));
+        exitDelay.setOnFinished(event -> primaryStage.close());
+        exitDelay.play();
     }
 
     /**

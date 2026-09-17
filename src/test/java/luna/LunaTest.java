@@ -167,13 +167,14 @@ public class LunaTest {
     }
 
     @Test
-    public void getResponse_byeCommand_returnsFarewellAndMarksExitRequested() {
+    public void getResponse_byeCommand_returnsFarewellBeforeExit() {
         Luna luna = new Luna(new Ui(false), new InMemoryStorage());
 
         String response = luna.getResponse("bye");
 
-        assertTrue(response.contains("The moon is setting. Rest well - I'll keep your tasks safe."));
+        assertEquals("The moon is setting. Rest well - I'll keep your tasks safe.", response);
         assertTrue(luna.isExitRequested());
+        assertFalse(luna.isLatestResponseError());
     }
 
     @Test
