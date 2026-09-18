@@ -1,4 +1,4 @@
-# Luna User Guide
+# Luna
 
 **Luna** is a calm, chatbot-style task manager for keeping track of todos,
 deadlines, and events. Luna saves your active and archived tasks locally so
@@ -6,11 +6,39 @@ they remain available after you close the application.
 
 ![Luna's JavaFX chat interface](Ui.png)
 
-## Quick start
+## Setup and run
 
-Luna requires JDK 25.
+### Requirements
 
-To run Luna from the project folder on Windows:
+Install JDK 25, then open a terminal and confirm that the correct Java version
+is available:
+
+```text
+java -version
+```
+
+The output should start with `java version "25`. If the command is not found
+or reports another version, install or select JDK 25 before continuing.
+
+### Running the JAR
+
+1. Place `luna.jar` in a dedicated folder where Luna can create its `data`
+   folder.
+2. Open a terminal in that folder.
+3. Run:
+
+   ```text
+   java -jar luna.jar
+   ```
+
+Keep the generated `data` folder beside the JAR if you want your active and
+archived tasks to remain available between sessions.
+
+### Running from source
+
+Open a terminal in the project folder and run the appropriate command.
+
+On Windows:
 
 ```powershell
 .\gradlew.bat run
@@ -21,6 +49,11 @@ On macOS or Linux:
 ```bash
 ./gradlew run
 ```
+
+To build a distributable JAR instead, run `./gradlew shadowJar` or
+`.\gradlew.bat shadowJar`. The result is saved as `build/libs/luna.jar`.
+
+### Getting started
 
 When Luna opens, enter commands in the text field at the bottom. Press
 <kbd>Enter</kbd> or select **Send** to submit a command. Start with `help` to
