@@ -19,7 +19,10 @@ public class DeadlineCommand extends Command {
     private static final DateTimeFormatter INPUT_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE
             .withResolverStyle(ResolverStyle.STRICT);
     private static final Pattern BY_PARAMETER = Pattern.compile("(?i)(?<!\\S)/by(?!\\S)");
+    private static final Pattern DATE_FORMAT = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
     private static final String USAGE_MESSAGE = "Please use deadline <description> /by <yyyy-MM-dd>.";
+    private static final String DATE_FORMAT_MESSAGE = "Please enter the deadline date in yyyy-MM-dd format, "
+            + "for example 2026-09-30.";
 
     private final String input;
 
@@ -54,13 +57,16 @@ public class DeadlineCommand extends Command {
 
         String description = parts[0].trim();
         String dateText = parts[1].trim();
+        if (!DATE_FORMAT.matcher(dateText).matches()) {
+            throw new LunaException(DATE_FORMAT_MESSAGE);
+        }
 
         try {
             LocalDate date = LocalDate.parse(dateText, INPUT_FORMAT);
             Deadline deadline = new Deadline(description, date);
             addTask(deadline, tasks, ui, storage);
         } catch (DateTimeParseException e) {
-            throw new LunaException("That deadline date is not valid. Please use yyyy-MM-dd, for example 2026-09-30.");
+            throw new LunaException(dateText + " is not a real calendar date. Please check the day and month.");
         }
     }
 

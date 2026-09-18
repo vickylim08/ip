@@ -278,7 +278,21 @@ public class LunaTest {
 
         String response = luna.getResponse("deadline submit report /by 2026-02-30");
 
-        assertTrue(response.contains("That deadline date is not valid."));
+        assertTrue(response.contains("2026-02-30 is not a real calendar date."
+                + " Please check the day and month."));
+        assertTrue(luna.isLatestResponseError());
+        assertTrue(storage.getSavedTasks().isEmpty());
+    }
+
+    @Test
+    public void getResponse_deadlineDateHasWrongFormat_returnsFormatSpecificError() {
+        InMemoryStorage storage = new InMemoryStorage();
+        Luna luna = new Luna(new Ui(false), storage);
+
+        String response = luna.getResponse("deadline submit report /by 30-09-2026");
+
+        assertTrue(response.contains("Please enter the deadline date in yyyy-MM-dd format, "
+                + "for example 2026-09-30."));
         assertTrue(luna.isLatestResponseError());
         assertTrue(storage.getSavedTasks().isEmpty());
     }
